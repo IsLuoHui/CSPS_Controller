@@ -21,12 +21,14 @@
 #include "cmsis_os.h"
 #include "dma.h"
 #include "i2c.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "serial.h"
+#include "timRefresh.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -94,8 +96,10 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   MX_I2C2_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
   USART_Init();
+  TimRefresh_Init();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -174,7 +178,11 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
-
+  if (htim->Instance == TIM1)
+  {
+    OLED_Layout_Refresh();
+    Key_Scan_Refresh();
+  }
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM2)
   {

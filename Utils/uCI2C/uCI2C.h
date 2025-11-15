@@ -1,5 +1,5 @@
-﻿#ifndef Utils_UCI2C_H
-#define Utils_UCI2C_H
+﻿#ifndef UTILS_UCI2C_H
+#define UTILS_UCI2C_H
 #include "stm32f1xx_hal.h"
 
 #pragma region //All uC Register Address
@@ -70,4 +70,4 @@
 HAL_StatusTypeDef uC_I2C_Read(uint8_t reg_addr, uint16_t *word);
 HAL_StatusTypeDef uC_I2C_Write(uint8_t reg_addr,uint16_t word);
 
-#endif //Utils_UCI2C_H
+#endif //UTILS_UCI2C_H

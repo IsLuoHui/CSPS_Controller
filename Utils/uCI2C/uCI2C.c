@@ -11,7 +11,7 @@ extern I2C_HandleTypeDef hi2c2;
  * @return 校验和 (uint8_t)
  * sum + checksum = 0 (mod 256)
  */
-uint8_t uC_I2C_Checksum(const uint8_t *bytes,const uint8_t len) {
+static uint8_t uC_I2C_Checksum(const uint8_t *bytes,const uint8_t len) {
     uint16_t sum = 0;
     for (uint8_t i = 0; i < len; i++) {
         sum += bytes[i];

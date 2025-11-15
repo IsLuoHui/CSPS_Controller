@@ -74,7 +74,8 @@ void USART_Process(const char *data,const uint16_t len) {
     }
     else
     {
-        USART_Printf("%s+echo\r\n",data);
+        printf("%s+%d\r\n",data,len);
+        //USART_Printf("%s+%d\r\n",data,len);
     }
 
 }

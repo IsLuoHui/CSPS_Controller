@@ -48,15 +48,19 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-        Utils/serial/serial.c
+        Utils/Serial/serial.c
         Utils/uCI2C/uCI2C.c
+        Utils/Key/key.c
+        Basis/TimRefresh/timRefresh.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
-        Utils/serial
+        Utils/Serial
         Utils/uCI2C
+        Utils/Key
+        Basis/TimRefresh
 )
 
 # Add project symbols (macros)
