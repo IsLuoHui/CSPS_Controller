@@ -25,7 +25,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <string.h>
+#include "oledSPI.h"
+#include "ovoui.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,6 +56,13 @@ const osThreadAttr_t testTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for oledRefreshTask */
+osThreadId_t oledRefreshTaskHandle;
+const osThreadAttr_t oledRefreshTask_attributes = {
+  .name = "oledRefreshTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -61,6 +70,7 @@ const osThreadAttr_t testTask_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartTestTask(void *argument);
+void StartOLEDRefreshTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -94,6 +104,9 @@ void MX_FREERTOS_Init(void) {
   /* creation of testTask */
   testTaskHandle = osThreadNew(StartTestTask, NULL, &testTask_attributes);
 
+  /* creation of oledRefreshTask */
+  oledRefreshTaskHandle = osThreadNew(StartOLEDRefreshTask, NULL, &oledRefreshTask_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -121,6 +134,51 @@ void StartTestTask(void *argument)
     osDelay(100);
   }
   /* USER CODE END StartTestTask */
+}
+
+/* USER CODE BEGIN Header_StartOLEDRefreshTask */
+/**
+* @brief Function implementing the oledRefreshTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartOLEDRefreshTask */
+void StartOLEDRefreshTask(void *argument)
+{
+  /* USER CODE BEGIN StartOLEDRefreshTask */
+  extern uint8_t FrameBuffer[OLED_BUFFER_SIZE];
+  OLED_Init();
+  Menu_Init();
+
+  /* Infinite loop */
+  for(;;)
+  {
+    memset(FrameBuffer, 0, OLED_BUFFER_SIZE);
+    for (uint8_t i = 0;i < menu.optnum;i++)
+    {
+      OLED_Draw_Element(menu.opt[i].ele);
+      OLED_Draw_Text(menu.opt[i].text);
+      for (uint8_t j = 0;j < menu.opt[i].listnum;j++)
+        OLED_Draw_Text(menu.opt[i].list[j].text);
+    }
+    OLED_Draw_FillRect(cursor.x0, cursor.y0, cursor.x1, cursor.y1, OLED_MIX_XOR);
+    OLED_Draw_Point(cursor.x0, cursor.y0, OLED_MIX_XOR);
+    OLED_Draw_Point(cursor.x0, cursor.y1 - 1, OLED_MIX_XOR);
+    OLED_Draw_Point(cursor.x1 - 1, cursor.y0, OLED_MIX_XOR);
+    OLED_Draw_Point(cursor.x1 - 1, cursor.y1 - 1, OLED_MIX_XOR);
+
+    //滚动条背景
+    OLED_Draw_Rect(121 + scrollbarOffset, 0, OLED_WIDTH_PIXEL - 1 + scrollbarOffset, OLED_HEIGHT_PIXEL - 1, OLED_MIX_COVER);
+    //滚动条滑块
+    OLED_Draw_FillRect(122 + scrollbarOffset, 0, OLED_WIDTH_PIXEL - 1 + scrollbarOffset, scrollOffset, OLED_MIX_COVER);
+
+
+    //OLED_Show_Num(0, 6, MENUCHOICE, 1, FrameBuffer, 1);
+    //OLED_Show_Num(16, 6, OPTIONCHOICE, 1, FrameBuffer, 1);
+
+    OLED_Refresh();
+  }
+  /* USER CODE END StartOLEDRefreshTask */
 }
 
 /* Private application code --------------------------------------------------*/

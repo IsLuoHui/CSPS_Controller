@@ -50,8 +50,11 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
         Utils/Serial/serial.c
         Utils/uCI2C/uCI2C.c
-        Utils/Key/key.c
         Basis/TimRefresh/timRefresh.c
+        Basis/OLEDFont/oledFont.c
+        Utils/Key/key.c
+        Utils/OLEDSPI/oledSPI.c
+        Utils/OVOUI/ovoui.c
 )
 
 # Add include paths
@@ -59,8 +62,11 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
         Utils/Serial
         Utils/uCI2C
-        Utils/Key
         Basis/TimRefresh
+        Basis/OLEDFont
+        Utils/Key
+        Utils/OLEDSPI
+        Utils/OVOUI
 )
 
 # Add project symbols (macros)

@@ -1,5 +1,4 @@
 ﻿#include "key.h"
-#include "stdio.h"
 
 uint16_t KeyHoldMax = 200;          // 短按阈值
 uint8_t HoldTriggerIntervalMax = 50;  // 长按触发间隔
@@ -12,7 +11,6 @@ uint8_t Key1_Process(void) {
     if (KEY1 == GPIO_PIN_RESET) { // 按下状态
         if (lastState == GPIO_PIN_SET) {
             // 第一次按下
-            printf("push\r\n");
             lastState = GPIO_PIN_RESET;
             holdCounter = 0;
             holdInterval = 0;
@@ -27,7 +25,6 @@ uint8_t Key1_Process(void) {
             holdInterval++;
             if (holdInterval >= HoldTriggerIntervalMax) {
                 holdInterval = 0;
-                printf("hold\r\n");
                 return LongKeyTrigger; // 长按连续触发事件
             }
         }
@@ -37,10 +34,8 @@ uint8_t Key1_Process(void) {
             lastState = GPIO_PIN_SET;
             // 松开时触发
             if (holdCounter > 0 && holdCounter < KeyHoldMax) {
-                printf("release(short)\r\n");
                 return ShortKeyUp; // 短按释放事件
             } else if (holdCounter >= KeyHoldMax) {
-                printf("release(long)\r\n");
                 return LongKeyUp; // 长按释放事件
             }
             holdCounter = 0;
@@ -58,7 +53,6 @@ uint8_t Key2_Process(void) {
     if (KEY2 == GPIO_PIN_RESET) { // 按下状态
         if (lastState == GPIO_PIN_SET) {
             // 第一次按下
-            printf("push\r\n");
             lastState = GPIO_PIN_RESET;
             holdCounter = 0;
             holdInterval = 0;
@@ -73,7 +67,6 @@ uint8_t Key2_Process(void) {
             holdInterval++;
             if (holdInterval >= HoldTriggerIntervalMax) {
                 holdInterval = 0;
-                printf("hold\r\n");
                 return LongKeyTrigger; // 长按连续触发事件
             }
         }
@@ -83,10 +76,8 @@ uint8_t Key2_Process(void) {
             lastState = GPIO_PIN_SET;
             // 松开时触发
             if (holdCounter > 0 && holdCounter < KeyHoldMax) {
-                printf("release(short)\r\n");
                 return ShortKeyUp; // 短按释放事件
             } else if (holdCounter >= KeyHoldMax) {
-                printf("release(long)\r\n");
                 return LongKeyUp; // 长按释放事件
             }
             holdCounter = 0;
@@ -104,7 +95,6 @@ uint8_t Key3_Process(void) {
     if (KEY3== GPIO_PIN_RESET) { // 按下状态
         if (lastState == GPIO_PIN_SET) {
             // 第一次按下
-            printf("push\r\n");
             lastState = GPIO_PIN_RESET;
             holdCounter = 0;
             holdInterval = 0;
@@ -119,7 +109,6 @@ uint8_t Key3_Process(void) {
             holdInterval++;
             if (holdInterval >= HoldTriggerIntervalMax) {
                 holdInterval = 0;
-                printf("hold\r\n");
                 return LongKeyTrigger; // 长按连续触发事件
             }
         }
@@ -129,10 +118,8 @@ uint8_t Key3_Process(void) {
             lastState = GPIO_PIN_SET;
             // 松开时触发
             if (holdCounter > 0 && holdCounter < KeyHoldMax) {
-                printf("release(short)\r\n");
                 return ShortKeyUp; // 短按释放事件
             } else if (holdCounter >= KeyHoldMax) {
-                printf("release(long)\r\n");
                 return LongKeyUp; // 长按释放事件
             }
             holdCounter = 0;
