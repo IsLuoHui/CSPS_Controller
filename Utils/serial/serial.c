@@ -4,11 +4,22 @@
 #include <stdio.h>
 
 extern UART_HandleTypeDef huart2;
-uint8_t rxBuffer[RX_BUFFER_SIZE];
+uint8_t rxBuffer[RX_BUFFER_SIZE]={0};
 
 void USART_Init(void) {
-    HAL_UART_Receive_DMA(&huart2, rxBuffer, RX_BUFFER_SIZE);
-    __HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart2,rxBuffer,RX_BUFFER_SIZE);
+    __HAL_DMA_DISABLE_IT(huart2.hdmarx,DMA_IT_HT);
+}
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+    if (huart->Instance == USART2)
+    {
+        //HAL_UART_Transmit_DMA(&huart2, rxBuffer, Size);
+        printf("%s+%d\r\n",(char*)rxBuffer,Size);
+        HAL_UARTEx_ReceiveToIdle_DMA(&huart2, rxBuffer, sizeof(rxBuffer));
+        __HAL_DMA_DISABLE_IT(huart2.hdmarx, DMA_IT_HT);
+    }
 }
 
 int fputc(int ch, FILE *f)

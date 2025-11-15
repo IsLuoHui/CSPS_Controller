@@ -6,6 +6,5 @@
 
 void USART_Init(void);
 void USART_Printf(const char *format, ...);
-void USART_IRQProcess(const uint8_t *data,const uint16_t len);
 
 #endif //Utils_SERIAL_H
