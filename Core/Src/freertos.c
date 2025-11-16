@@ -28,6 +28,9 @@
 #include <string.h>
 #include "oledSPI.h"
 #include "ovoui.h"
+#include "oledFont.h"
+#include "newUI.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -147,13 +150,22 @@ void StartOLEDRefreshTask(void *argument)
 {
   /* USER CODE BEGIN StartOLEDRefreshTask */
   extern uint8_t FrameBuffer[OLED_BUFFER_SIZE];
+  extern AHVal anim1;
   OLED_Init();
-  Menu_Init();
+  //Menu_Init();
+
+  ELEMENT testIcon={0, 0, ICON48W, ICON48H, OLED_MIX_COVER, (uint8_t*)ICON_48X48[2]};
 
   /* Infinite loop */
   for(;;)
   {
     memset(FrameBuffer, 0, OLED_BUFFER_SIZE);
+
+    testIcon.x=anim1.currentValue;
+    OLED_Draw_Element(testIcon);
+    //OLED_Draw_Rect(anim1.currentValue,0,anim1.currentValue+ICON48W,ICON48H,OLED_MIX_COVER);
+
+    /*
     for (uint8_t i = 0;i < menu.optnum;i++)
     {
       OLED_Draw_Element(menu.opt[i].ele);
@@ -171,11 +183,10 @@ void StartOLEDRefreshTask(void *argument)
     OLED_Draw_Rect(121 + scrollbarOffset, 0, OLED_WIDTH_PIXEL - 1 + scrollbarOffset, OLED_HEIGHT_PIXEL - 1, OLED_MIX_COVER);
     //滚动条滑块
     OLED_Draw_FillRect(122 + scrollbarOffset, 0, OLED_WIDTH_PIXEL - 1 + scrollbarOffset, scrollOffset, OLED_MIX_COVER);
+    */
 
 
-    //OLED_Show_Num(0, 6, MENUCHOICE, 1, FrameBuffer, 1);
-    //OLED_Show_Num(16, 6, OPTIONCHOICE, 1, FrameBuffer, 1);
-
+    //osDelay(5);
     OLED_Refresh();
   }
   /* USER CODE END StartOLEDRefreshTask */

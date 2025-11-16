@@ -56,6 +56,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         Utils/OLEDSPI/oledSPI.c
         App/OVOUI/ovoui.c
         App/CSPSCOM/CSPScom.c
+        App/OVOUI/newUI.c
 )
 
 # Add include paths
