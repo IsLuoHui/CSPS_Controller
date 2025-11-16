@@ -1,5 +1,6 @@
 ﻿#include "ovoui.h"
 #include "oledFont.h"
+#include "CSPScom.h"
 
 LIST list1[] = {
     {{0, 0, "abcdefghijk", OLED_MIX_HIDE, 0,0},0},
@@ -14,24 +15,31 @@ LIST list1[] = {
     {{0, 0, "=>Back", OLED_MIX_HIDE, 0,0},On_Menu_Back},
 };
 
+LIST SettingList[]={
+    {{0,0,"FanSpeedMax",OLED_MIX_HIDE,0,0},CSPS_Set_Fan_Speed_Max},
+    {{0,0,"StopFan", OLED_MIX_HIDE, 0,0},CSPS_Set_Fan_Stop},
+    {{0, 0, "Owo?", OLED_MIX_HIDE, 0,0},0},
+    {{0,0, "=>Back", OLED_MIX_HIDE, 0,0},On_Menu_Back},
+};
+
 OPTION mainMenu[] = {
-    {
-        {0,0,"Port",OLED_MIX_HIDE,0,0},
-        {0, 0, 0, 0, OLED_MIX_HIDE,(uint8_t*)ICON_48X48[0]},
-        list1,
-        sizeof(list1) / sizeof(list1[0])
-    },
-    {
-        {0,0,"Model",OLED_MIX_HIDE,0,0},
-        {0, 0, 0, 0, OLED_MIX_HIDE,(uint8_t*)ICON_48X48[1]},
-        list1,
-        sizeof(list1) / sizeof(list1[0])
-    },
+    //{
+    //    {0,0,"Port",OLED_MIX_HIDE,0,0},
+    //    {0, 0, 0, 0, OLED_MIX_HIDE,(uint8_t*)ICON_48X48[0]},
+    //    list1,
+    //    sizeof(list1) / sizeof(list1[0])
+    //},
+    //{
+    //    {0,0,"Model",OLED_MIX_HIDE,0,0},
+    //    {0, 0, 0, 0, OLED_MIX_HIDE,(uint8_t*)ICON_48X48[1]},
+    //    list1,
+    //    sizeof(list1) / sizeof(list1[0])
+    //},
     {
         {0,0,"Setting",OLED_MIX_HIDE,0,0},
         {0, 0, 0, 0, OLED_MIX_HIDE, (uint8_t*)ICON_48X48[2]},
-        list1,
-        sizeof(list1) / sizeof(list1[0])
+        SettingList,
+        sizeof(SettingList) / sizeof(SettingList[0])
     },
     {
         {0,0,"Info",OLED_MIX_HIDE,0,0},
@@ -53,6 +61,7 @@ uint8_t scrollOffset = 0;
 
 uint8_t menuState = 0;
 
+// TODO: 菜单数小于四时生成错误
 //菜单初始化
 void Menu_Init(void) {
     for (uint8_t i = 0; i < menu.optnum; i++) {

@@ -54,7 +54,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         Basis/OLEDFont/oledFont.c
         Utils/Key/key.c
         Utils/OLEDSPI/oledSPI.c
-        Utils/OVOUI/ovoui.c
+        App/OVOUI/ovoui.c
+        App/CSPSCOM/CSPScom.c
 )
 
 # Add include paths
@@ -66,7 +67,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         Basis/OLEDFont
         Utils/Key
         Utils/OLEDSPI
-        Utils/OVOUI
+        App/OVOUI
+        App/CSPSCOM
 )
 
 # Add project symbols (macros)

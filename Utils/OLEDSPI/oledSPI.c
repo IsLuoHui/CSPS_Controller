@@ -36,8 +36,8 @@ void OLED_Init(void) {
     OLED_SendCommand(0x40);//--set start line address  Set Mapping RAM Display Start Line (0x00~0x3F)
     OLED_SendCommand(0x81);//--set contrast control register
     OLED_SendCommand(0x00); // 亮度变化量很小
-    OLED_SendCommand(0xA1);//--Set SEG/Column Mapping     0xa0左右反置 0xa1正常
-    OLED_SendCommand(0xC8);//Set COM/Row Scan Direction   0xc0上下反置 0xc8正常
+    OLED_SendCommand(0xA0);//--Set SEG/Column Mapping     0xa0左右反置 0xa1正常
+    OLED_SendCommand(0xC0);//Set COM/Row Scan Direction   0xc0上下反置 0xc8正常
     OLED_SendCommand(0xA6);//--set normal display
     OLED_SendCommand(0xA8);//--set multiplex ratio(1 to 64)
     OLED_SendCommand(0x3f);//--1/64 duty
