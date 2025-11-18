@@ -66,7 +66,8 @@ void OLED_Layout_Refresh(void) {
             On_Menu_Enter();
         }
         */
-
+        Ease_SetFunc(easeOutCubic,&anim1);
+        printf("%d",Ease_GetFunc(&anim1));
         printf("1\r\n");
         AHVal_SetSoftRestart(&anim1, 40, TICKMAX);
     }

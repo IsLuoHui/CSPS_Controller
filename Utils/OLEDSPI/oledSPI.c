@@ -88,6 +88,7 @@ void OLED_Draw_Point(uint8_t x, uint8_t y, OLED_MIX_MODE mix){
     switch (mix) {
     case OLED_MIX_COVER:
         FrameBuffer[(y >> 3) * 128 + x] |= bitmask;
+        break;
     case OLED_MIX_OR:
         FrameBuffer[(y >> 3) * 128 + x] |= bitmask;
         break;
