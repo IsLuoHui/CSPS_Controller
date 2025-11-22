@@ -29,7 +29,7 @@ void EasingVar_Refresh(void) {
         //On_Menu_Next();
 
         printf("3\r\n");
-        EaseVar_SetSoftRestart(&ease_var0, 80, TICKMAX);
+        EaseVar_SetSoftRestart(&ease_var0, 16, TICKMAX);
     } else if (key1s == ShortKeyDown || key1s == LongKeyTrigger) {
         key1s = 0;
         //On_Menu_Prev();
@@ -53,7 +53,7 @@ void EasingVar_Refresh(void) {
         //Ease_SetFunc(easeOutCubic, &ease_var0);
         //printf("%d", Ease_GetFunc(&ease_var0));
         printf("1\r\n");
-        EaseVar_SetSoftRestart(&ease_var0, 40, TICKMAX);
+        EaseVar_SetSoftRestart(&ease_var0, 8, TICKMAX);
     }
 
     EaseVar_Update(&ease_var0);

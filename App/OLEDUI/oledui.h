@@ -42,6 +42,7 @@ typedef struct {
     int16_t x, y;
     char *str;
     OLED_MIX_MODE mix;
+    FONT_DESC *fontdesc;
     uint8_t *font[64];
     uint16_t fontwidth;
 } TEXT;

@@ -9,29 +9,32 @@
 extern uint8_t FrameBuffer[OLED_BUFFER_SIZE];
 extern EaseVar anim1;
 extern EaseVar easevar[];
+extern FONT_DESC font_8x16;
+extern FONT_DESC font_5x7;
 
 //ELEMENT testIcon={0, 0, ICON48W, ICON48H, OLED_MIX_COVER, (uint8_t*)ICON_48X48[2]};
-TEXT testText={0, 0, "Hello, OLEDUI!", OLED_MIX_COVER, {0}, 0};
+TEXT testText = {0, 0, " !\"#$%&'()", OLED_MIX_COVER, &font_8x16, {0}, 0};
 
-void OLED_Draw_Point(uint8_t x, uint8_t y, OLED_MIX_MODE mix){
+
+void OLED_Draw_Point(uint8_t x, uint8_t y, OLED_MIX_MODE mix) {
     if (x >= OLED_WIDTH_PIXEL || y >= OLED_HEIGHT_PIXEL) return;
     uint8_t bitmask = 0x01 << (y & 0x07);
     switch (mix) {
-    case OLED_MIX_COVER:
-        FrameBuffer[(y >> 3) * 128 + x] |= bitmask;
-        break;
-    case OLED_MIX_OR:
-        FrameBuffer[(y >> 3) * 128 + x] |= bitmask;
-        break;
-    case OLED_MIX_XOR:
-        FrameBuffer[(y >> 3) * 128 + x] ^= bitmask;
-        break;
-    default:
-        break;
+        case OLED_MIX_COVER:
+            FrameBuffer[(y >> 3) * 128 + x] |= bitmask;
+            break;
+        case OLED_MIX_OR:
+            FrameBuffer[(y >> 3) * 128 + x] |= bitmask;
+            break;
+        case OLED_MIX_XOR:
+            FrameBuffer[(y >> 3) * 128 + x] ^= bitmask;
+            break;
+        default:
+            break;
     }
 }
 
-void OLED_Draw_Line(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MODE mix){
+void OLED_Draw_Line(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MODE mix) {
     int16_t dx = x1 > x0 ? x1 - x0 : x0 - x1;
     int16_t dy = y1 > y0 ? y1 - y0 : y0 - y1;
     int16_t sx = x0 < x1 ? 1 : -1;
@@ -43,7 +46,7 @@ void OLED_Draw_Line(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MOD
 
         if (x0 == x1 && y0 == y1) break;
 
-        int16_t  e2 = err << 1;
+        int16_t e2 = err << 1;
         if (e2 > -dy) {
             err -= dy;
             x0 += sx;
@@ -55,7 +58,7 @@ void OLED_Draw_Line(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MOD
     }
 }
 
-void OLED_Draw_DashedLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t dashlen, OLED_MIX_MODE mix){
+void OLED_Draw_DashedLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t dashlen, OLED_MIX_MODE mix) {
     int16_t dx = x1 > x0 ? x1 - x0 : x0 - x1;
     int16_t dy = y1 > y0 ? y1 - y0 : y0 - y1;
     int16_t sx = x0 < x1 ? 1 : -1;
@@ -70,16 +73,30 @@ void OLED_Draw_DashedLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_
         if (x0 == x1 && y0 == y1) break;
 
         int16_t e2 = err << 1;
-        if (e2 > -dy) { err -= dy; x0 += sx; }
-        if (e2 < dx) { err += dx; y0 += sy; }
+        if (e2 > -dy) {
+            err -= dy;
+            x0 += sx;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y0 += sy;
+        }
 
         count++;
     }
 }
 
-void OLED_Draw_Rect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MODE mix){
-    if (x0 > x1) { uint8_t tmp = x0; x0 = x1; x1 = tmp; }
-    if (y0 > y1) { uint8_t tmp = y0; y0 = y1; y1 = tmp; }
+void OLED_Draw_Rect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MODE mix) {
+    if (x0 > x1) {
+        uint8_t tmp = x0;
+        x0 = x1;
+        x1 = tmp;
+    }
+    if (y0 > y1) {
+        uint8_t tmp = y0;
+        y0 = y1;
+        y1 = tmp;
+    }
 
     // y
     for (uint8_t x = x0; x <= x1; x++) {
@@ -93,10 +110,18 @@ void OLED_Draw_Rect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MOD
     }
 }
 
-void OLED_Draw_FillRect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MODE mix){
+void OLED_Draw_FillRect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MODE mix) {
     if (mix == OLED_MIX_HIDE)return;
-    if (x0 > x1) { uint8_t t = x0; x0 = x1; x1 = t; }
-    if (y0 > y1) { uint8_t t = y0; y0 = y1; y1 = t; }
+    if (x0 > x1) {
+        uint8_t t = x0;
+        x0 = x1;
+        x1 = t;
+    }
+    if (y0 > y1) {
+        uint8_t t = y0;
+        y0 = y1;
+        y1 = t;
+    }
     if (x1 > OLED_WIDTH_PIXEL) x1 = OLED_WIDTH_PIXEL;
     if (y1 > OLED_HEIGHT_PIXEL) y1 = OLED_HEIGHT_PIXEL;
 
@@ -109,20 +134,21 @@ void OLED_Draw_FillRect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX
         for (uint8_t page = page_start; page <= page_end; page++) {
             uint8_t mask = 0xFF;
             if (page == page_start) mask &= mask_start;
-            if (page == page_end)   mask &= mask_end;
+            if (page == page_end) mask &= mask_end;
             switch (mix) {
-            case OLED_MIX_COVER:
-                FrameBuffer[page * OLED_WIDTH_PIXEL + x] = (FrameBuffer[page * OLED_WIDTH_PIXEL + x] & ~mask) | mask;
-                break;
-            case OLED_MIX_OR:
-                FrameBuffer[page * OLED_WIDTH_PIXEL + x] |= mask;
-                break;
-            case OLED_MIX_AND:
-                FrameBuffer[page * OLED_WIDTH_PIXEL + x] &= mask;
-                break;
-            case OLED_MIX_XOR:
-                FrameBuffer[page * OLED_WIDTH_PIXEL + x] ^= mask;
-                break;
+                case OLED_MIX_COVER:
+                    FrameBuffer[page * OLED_WIDTH_PIXEL + x] =
+                            (FrameBuffer[page * OLED_WIDTH_PIXEL + x] & ~mask) | mask;
+                    break;
+                case OLED_MIX_OR:
+                    FrameBuffer[page * OLED_WIDTH_PIXEL + x] |= mask;
+                    break;
+                case OLED_MIX_AND:
+                    FrameBuffer[page * OLED_WIDTH_PIXEL + x] &= mask;
+                    break;
+                case OLED_MIX_XOR:
+                    FrameBuffer[page * OLED_WIDTH_PIXEL + x] ^= mask;
+                    break;
             }
         }
     }
@@ -133,7 +159,8 @@ void OLED_Draw_Element(ELEMENT ele) {
     if (ele.mix == OLED_MIX_HIDE) return;
     if (ele.w == 0 || ele.h == 0) return;
     if (ele.x >= OLED_WIDTH_PIXEL || ele.y >= OLED_HEIGHT_PIXEL ||
-        ele.x + ele.w <= 0 || ele.y + ele.h <= 0) return;
+        ele.x + ele.w <= 0 || ele.y + ele.h <= 0)
+        return;
 
     // 裁剪到屏幕范围
     int16_t x0 = (ele.x < 0) ? 0 : ele.x;
@@ -144,11 +171,11 @@ void OLED_Draw_Element(ELEMENT ele) {
     uint8_t y_offset;
     if (ele.y >= 0) {
         page_start = ele.y / 8;
-        y_offset   = ele.y % 8;
+        y_offset = ele.y % 8;
     } else {
         int16_t abs_y = -ele.y;
         page_start = (ele.y - 7) / 8; // 向下取整
-        y_offset   = (8 - (abs_y % 8)) % 8;
+        y_offset = (8 - (abs_y % 8)) % 8;
     }
 
     // 计算需要显示的页数
@@ -168,8 +195,8 @@ void OLED_Draw_Element(ELEMENT ele) {
 
             // 计算输出字节
             uint8_t out = (page == 0)
-                          ? (data << y_offset)
-                          : (data << y_offset) | (prev >> (8 - y_offset));
+                              ? (data << y_offset)
+                              : (data << y_offset) | (prev >> (8 - y_offset));
             prev = data;
 
             int16_t fb_page = page_start + page;
@@ -180,85 +207,98 @@ void OLED_Draw_Element(ELEMENT ele) {
 
             // 混合模式
             switch (ele.mix) {
-                case OLED_MIX_COVER: fb_line[col]  = out; break;
-                case OLED_MIX_OR:    fb_line[col] |= out; break;
-                case OLED_MIX_AND:   fb_line[col] &= out; break;
-                case OLED_MIX_XOR:   fb_line[col] ^= out; break;
+                case OLED_MIX_COVER: fb_line[col] = out;
+                    break;
+                case OLED_MIX_OR: fb_line[col] |= out;
+                    break;
+                case OLED_MIX_AND: fb_line[col] &= out;
+                    break;
+                case OLED_MIX_XOR: fb_line[col] ^= out;
+                    break;
             }
         }
     }
 }
 
-void TEXT_Preprocess(TEXT* text) {
-    if (!text || !text->str) return;
+void TEXT_Preprocess(TEXT *text) {
+    if (!text || !text->str || !text->fontdesc) return;
 
+    const FONT_DESC *fd = text->fontdesc;
     for (int i = 0; text->str[i] != '\0' && i < 128; i++) {
         char c = text->str[i];
         if (c < ' ' || c > '~') {
-            text->font[i] = 0;
-        }
-        else {
-            text->font[i] = (uint8_t*)&ASCII_8X16[c - ' '][0];
+            text->font[i] = NULL;
+        } else {
+            text->font[i] = fd->table + (c - ' ') * fd->width * ((fd->height + 7) / 8);
         }
     }
-    text->fontwidth = strlen(text->str) * 8;
+    text->fontwidth = strlen(text->str) * fd->width;
 }
 
+
 void OLED_Draw_Text(TEXT text) {
-    if (!text.str) return;
+    if (!text.str || !text.fontdesc) return;
     if (text.mix == OLED_MIX_HIDE) return; // 混合模式为隐藏时不绘制
 
+    const FONT_DESC *fd = text.fontdesc;
     int16_t x_start = text.x;
     int16_t y = text.y;
-    const char* str = text.str;
+    const char *str = text.str;
 
     // 计算字符串像素宽度
     uint16_t max_chars = 0;
     for (; str[max_chars] != '\0' && max_chars < 128; max_chars++);
-    uint16_t text_w = max_chars * 8;
+    uint16_t text_w = max_chars * fd->width;
 
     // 如果整体在屏幕外就直接 return
-    if (x_start + text_w <= 0 || x_start >= OLED_WIDTH_PIXEL || y + 16 <= 0 || y >= OLED_HEIGHT_PIXEL)
+    if (x_start + text_w <= 0 || x_start >= OLED_WIDTH_PIXEL ||
+        y + fd->height <= 0 || y >= OLED_HEIGHT_PIXEL)
         return;
 
     int16_t x_cursor = x_start;
     int16_t page_start = (y >= 0) ? (y / 8) : ((y - 7) / 8);
     uint8_t y_offset = (y >= 0) ? (y % 8) : ((8 - ((-y) % 8)) % 8);
-    uint8_t page_cnt = (16 + y_offset + 7) / 8;
+    uint8_t page_cnt = (fd->height + y_offset + 7) / 8;
 
-    for (uint8_t i = 0; str[i] != '\0' && i < 128; i++, x_cursor += 8) {
+    // 每列占用的字节数（页数）
+    int bytes_per_col = (fd->height + 7) / 8;
+
+    for (uint8_t i = 0; str[i] != '\0' && i < 128; i++, x_cursor += fd->width) {
         if (!text.font[i]) continue;
-        const uint8_t* font_data = text.font[i];
+        const uint8_t *font_data = text.font[i];
 
-        for (uint8_t col_offset = 0; col_offset < 8; col_offset++) {
+        for (uint8_t col_offset = 0; col_offset < fd->width; col_offset++) {
             uint8_t prev = 0;
 
             for (uint8_t page = 0; page < page_cnt; page++) {
                 uint8_t data = 0;
-                if (page == 0)      data = font_data[col_offset];
-                else if (page == 1) data = font_data[col_offset + 8];
+                if (page < bytes_per_col) {
+                    data = font_data[col_offset + page * fd->width];
+                }
 
-                uint8_t out = (page == 0) ? (data << y_offset) : ((data << y_offset) | (prev >> (8 - y_offset)));
+                uint8_t out = (page == 0)
+                                  ? (data << y_offset)
+                                  : ((data << y_offset) | (prev >> (8 - y_offset)));
                 prev = data;
 
                 int16_t draw_col = x_cursor + col_offset;
                 int16_t fb_page = page_start + page;
 
-                if ((uint16_t)draw_col < OLED_WIDTH_PIXEL &&
-                    (uint16_t)fb_page < (OLED_HEIGHT_PIXEL / 8)) {
+                if ((uint16_t) draw_col < OLED_WIDTH_PIXEL &&
+                    (uint16_t) fb_page < (OLED_HEIGHT_PIXEL / 8)) {
                     switch (text.mix) {
-                    case OLED_MIX_COVER:
-                        FrameBuffer[fb_page * OLED_WIDTH_PIXEL + draw_col] = out;
-                        break;
-                    case OLED_MIX_OR:
-                        FrameBuffer[fb_page * OLED_WIDTH_PIXEL + draw_col] |= out;
-                        break;
-                    case OLED_MIX_AND:
-                        FrameBuffer[fb_page * OLED_WIDTH_PIXEL + draw_col] &= out;
-                        break;
-                    case OLED_MIX_XOR:
-                        FrameBuffer[fb_page * OLED_WIDTH_PIXEL + draw_col] ^= out;
-                        break;
+                        case OLED_MIX_COVER:
+                            FrameBuffer[fb_page * OLED_WIDTH_PIXEL + draw_col] = out;
+                            break;
+                        case OLED_MIX_OR:
+                            FrameBuffer[fb_page * OLED_WIDTH_PIXEL + draw_col] |= out;
+                            break;
+                        case OLED_MIX_AND:
+                            FrameBuffer[fb_page * OLED_WIDTH_PIXEL + draw_col] &= out;
+                            break;
+                        case OLED_MIX_XOR:
+                            FrameBuffer[fb_page * OLED_WIDTH_PIXEL + draw_col] ^= out;
+                            break;
                     }
                 }
             }
@@ -266,16 +306,24 @@ void OLED_Draw_Text(TEXT text) {
     }
 }
 
+uint8_t sbuf[255] = {0};
+
 void OLEDUI_Init(void) {
     TEXT_Preprocess(&testText);
+    memset(sbuf, 0xff, 255);
 }
 
 void OLEDUI_Refresh(void) {
     memset(FrameBuffer, 0, OLED_BUFFER_SIZE);
 
     //testIcon.x=anim1.currentValue;
-    testText.x=ease_var0.currentValue;
+    testText.x = ease_var0.currentValue;
     OLED_Draw_Text(testText);
+    ELEMENT testRect = {
+        testText.x, testText.y, testText.fontwidth, testText.y + testText.fontdesc->height, OLED_MIX_XOR, &sbuf
+    };
+    OLED_Draw_Element(testRect);
+    //printf("%d", testText.fontwidth);
     //OLED_Draw_Element(testIcon);
 
     OLED_SendBuffer();
