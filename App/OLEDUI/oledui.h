@@ -1,4 +1,6 @@
 ﻿#ifndef CSPS_CONTROLLER_OLEDUI_H
 #define CSPS_CONTROLLER_OLEDUI_H
 
+void OLEDUI_Refresh(void);
+
 #endif //CSPS_CONTROLLER_OLEDUI_H

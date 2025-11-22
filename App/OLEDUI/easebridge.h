@@ -2,9 +2,9 @@
 #define CSPS_CONTROLLER_EASINGBRIDGE_H
 #include "easevar.h"
 
-void HandleLoop(void);
-void Trigger1(void);
-void Trigger2(void);
-void Trigger3(void);
+#define ease_var0 easevar[0]
+#define ease_var1 easevar[1]
+
+void EasingVar_Refresh(void);
 
 #endif //CSPS_CONTROLLER_EASINGBRIDGE_H

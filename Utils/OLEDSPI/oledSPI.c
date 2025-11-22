@@ -72,7 +72,7 @@ void OLED_Display_Off(void) {
     OLED_SendCommand(0XAE);  //DISPLAY OFF
 }
 
-void OLED_Refresh(void) {
+void OLED_SendBuffer(void) {
     for (uint8_t page = 0; page < 8; page++) {
         OLED_SendCommand(0xB0 + page);       // 设置页地址
         OLED_SendCommand(0x00);              // 设置列低地址

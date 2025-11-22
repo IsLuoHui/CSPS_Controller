@@ -1,17 +1,10 @@
 ﻿#include "timRefresh.h"
-#include "key.h"
-#include "easebridge.h"
 #include "ovoui.h"
 #include "oledFont.h"
 #include "oledSPI.h"
-#include <stdio.h>
-
-#define REFRESH_INTERVAL 5 //ms
-#define ANIMATION_SPEED 1000 //ms
-#define TICKMAX (ANIMATION_SPEED/REFRESH_INTERVAL) //ms
 
 extern TIM_HandleTypeDef htim1;
-KeyStatus key1s,key2s,key3s= KeyIdle;
+
 
 static void EaseOut(int16_t* value, int16_t target, uint8_t division) {
     if (*value == target) return;
@@ -35,44 +28,8 @@ void TimRefresh_Init(void) {
     HAL_TIM_Base_Start_IT(&htim1);
 }
 
-extern EaseVar anim1;
-
 void OLED_Layout_Refresh(void) {
-    if (Key3_Process()==ShortKeyDown||Key3_Process()==LongKeyTrigger) {
-        key3s=0;
-        //On_Menu_Next();
 
-        printf("3\r\n");
-        EaseVar_SetSoftRestart(&anim1, 80,TICKMAX);
-    }
-    else if (Key1_Process()==ShortKeyDown||Key1_Process()==LongKeyTrigger) {
-        key1s=0;
-        //On_Menu_Prev();
-
-        printf("2\r\n");
-        EaseVar_SetSoftRestart(&anim1, 0, TICKMAX);
-    }
-    else if (Key2_Process()==ShortKeyDown||Key2_Process()==LongKeyTrigger) {
-        key2s=0;
-        /*
-        if (menuState) {
-                if (menu.opt[MENUCHOICE].list[OPTIONCHOICE].action)
-                {
-                    menu.opt[MENUCHOICE].list[OPTIONCHOICE].action();
-                }
-            return;
-        }
-        else {
-            On_Menu_Enter();
-        }
-        */
-        Ease_SetFunc(easeOutCubic,&anim1);
-        printf("%d",Ease_GetFunc(&anim1));
-        printf("1\r\n");
-        EaseVar_SetSoftRestart(&anim1, 40, TICKMAX);
-    }
-
-    EaseVar_Update(&anim1);
     /*
     // TODO 动画调整
     EaseOut(&menuOffsetX, menuOffsetX_Target, 5);
@@ -141,8 +98,3 @@ void OLED_Layout_Refresh(void) {
     */
 }
 
-void Key_Scan_Refresh(void) {
-    key1s = Key1_Process();
-    key2s = Key2_Process();
-    key3s = Key3_Process();
-}

@@ -1,7 +1,8 @@
 ﻿#include "key.h"
 
-uint16_t KeyHoldMax = 200;          // 短按阈值
+uint16_t KeyHoldMax = 150;          // 短按长按区分阈值
 uint8_t HoldTriggerIntervalMax = 50;  // 长按触发间隔
+KeyStatus key1s,key2s,key3s= KeyIdle;
 
 uint8_t Key1_Process(void) {
     static GPIO_PinState lastState = GPIO_PIN_SET;
@@ -44,7 +45,6 @@ uint8_t Key1_Process(void) {
     return KeyIdle; // 无事件
 }
 
-
 uint8_t Key2_Process(void) {
     static GPIO_PinState lastState = GPIO_PIN_SET;
     static uint16_t holdCounter = 0;
@@ -86,7 +86,6 @@ uint8_t Key2_Process(void) {
     return KeyIdle; // 无事件
 }
 
-
 uint8_t Key3_Process(void) {
     static GPIO_PinState lastState = GPIO_PIN_SET;
     static uint16_t holdCounter = 0;
@@ -126,4 +125,10 @@ uint8_t Key3_Process(void) {
         }
     }
     return KeyIdle; // 无事件
+}
+
+void Key_Scan_Refresh(void) {
+    key1s = Key1_Process();
+    key2s = Key2_Process();
+    key3s = Key3_Process();
 }

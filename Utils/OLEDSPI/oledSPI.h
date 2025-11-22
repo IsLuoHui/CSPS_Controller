@@ -62,7 +62,7 @@ void OLED_Init(void);
 void OLED_SetCursor(uint8_t x, uint8_t page);
 void OLED_Display_On(void);
 void OLED_Display_Off(void);
-void OLED_Refresh(void);
+void OLED_SendBuffer(void);
 
 void OLED_Draw_Point(uint8_t x, uint8_t y, OLED_MIX_MODE mix);
 void OLED_Draw_Line(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MODE mix);

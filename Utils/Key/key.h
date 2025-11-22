@@ -18,5 +18,6 @@ typedef enum {
 uint8_t Key1_Process(void);
 uint8_t Key2_Process(void);
 uint8_t Key3_Process(void);
+void Key_Scan_Refresh(void);
 
 #endif //UTILS_KEY_H

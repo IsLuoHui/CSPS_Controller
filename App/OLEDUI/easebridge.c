@@ -1,5 +1,17 @@
 ﻿#include "easebridge.h"
+#include "key.h"
+#include <stdio.h>
 
+extern KeyStatus key1s, key2s, key3s;
+
+#define REFRESH_INTERVAL 5 //ms
+#define ANIMATION_SPEED 1000 //ms
+#define TICKMAX (ANIMATION_SPEED/REFRESH_INTERVAL) //ms
+
+EaseVar easevar[] = {
+    {0, 0, 0, 0, 0,NULL, 1},
+    {0, 0, 0, 0, 0,NULL, 1},
+};
 
 EaseVar anim1 = {
     .currentTick = 0,
@@ -11,14 +23,38 @@ EaseVar anim1 = {
     .status = 1
 };
 
-void HandleLoop(void) {
-}
+void EasingVar_Refresh(void) {
+    if (key3s == ShortKeyDown || key3s == LongKeyTrigger) {
+        key3s = 0;
+        //On_Menu_Next();
 
-void Trigger0(void) {
-}
+        printf("3\r\n");
+        EaseVar_SetSoftRestart(&anim1, 80, TICKMAX);
+    } else if (key1s == ShortKeyDown || key1s == LongKeyTrigger) {
+        key1s = 0;
+        //On_Menu_Prev();
 
-void Trigger1(void) {
-}
+        printf("2\r\n");
+        EaseVar_SetSoftRestart(&anim1, 0, TICKMAX);
+    } else if (key2s == ShortKeyDown || key2s == LongKeyTrigger) {
+        key2s = 0;
+        /*
+        if (menuState) {
+                if (menu.opt[MENUCHOICE].list[OPTIONCHOICE].action)
+                {
+                    menu.opt[MENUCHOICE].list[OPTIONCHOICE].action();
+                }
+            return;
+        }
+        else {
+            On_Menu_Enter();
+        }
+        */
+        Ease_SetFunc(easeOutCubic, &anim1);
+        printf("%d", Ease_GetFunc(&anim1));
+        printf("1\r\n");
+        EaseVar_SetSoftRestart(&anim1, 40, TICKMAX);
+    }
 
-void Trigger2(void) {
+    EaseVar_Update(&anim1);
 }
