@@ -54,7 +54,6 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         Basis/OLEDFont/oledFont.c
         Utils/Key/key.c
         Utils/OLEDSPI/oledSPI.c
-        App/OVOUI/ovoui.c
         App/CSPSCOM/CSPScom.c
 
         App/OLEDUI/oledui.c
@@ -71,7 +70,6 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         Basis/OLEDFont
         Utils/Key
         Utils/OLEDSPI
-        App/OVOUI
         App/CSPSCOM
         App/OLEDUI
 )

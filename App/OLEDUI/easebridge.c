@@ -9,7 +9,7 @@ extern KeyStatus key1s, key2s, key3s;
 #define TICKMAX (ANIMATION_SPEED/REFRESH_INTERVAL) //ms
 
 EaseVar easevar[] = {
-    {0, 0, 0, 0, 0,NULL, 1},
+    {0, 0, 0, 0, 0,easeOutElastic_, 1},
     {0, 0, 0, 0, 0,NULL, 1},
 };
 
@@ -29,13 +29,13 @@ void EasingVar_Refresh(void) {
         //On_Menu_Next();
 
         printf("3\r\n");
-        EaseVar_SetSoftRestart(&anim1, 80, TICKMAX);
+        EaseVar_SetSoftRestart(&ease_var0, 80, TICKMAX);
     } else if (key1s == ShortKeyDown || key1s == LongKeyTrigger) {
         key1s = 0;
         //On_Menu_Prev();
 
         printf("2\r\n");
-        EaseVar_SetSoftRestart(&anim1, 0, TICKMAX);
+        EaseVar_SetSoftRestart(&ease_var0, 0, TICKMAX);
     } else if (key2s == ShortKeyDown || key2s == LongKeyTrigger) {
         key2s = 0;
         /*
@@ -50,11 +50,11 @@ void EasingVar_Refresh(void) {
             On_Menu_Enter();
         }
         */
-        Ease_SetFunc(easeOutCubic, &anim1);
-        printf("%d", Ease_GetFunc(&anim1));
+        //Ease_SetFunc(easeOutCubic, &ease_var0);
+        //printf("%d", Ease_GetFunc(&ease_var0));
         printf("1\r\n");
-        EaseVar_SetSoftRestart(&anim1, 40, TICKMAX);
+        EaseVar_SetSoftRestart(&ease_var0, 40, TICKMAX);
     }
 
-    EaseVar_Update(&anim1);
+    EaseVar_Update(&ease_var0);
 }

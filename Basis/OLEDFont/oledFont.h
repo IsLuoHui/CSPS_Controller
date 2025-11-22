@@ -1,5 +1,14 @@
 ﻿#ifndef OVOTOOL_OLED_FONT_H
 #define OVOTOOL_OLED_FONT_H
+#include <stdint.h>
+
+typedef struct {
+    const uint8_t *table;
+    uint8_t width;
+    uint8_t height;
+} FONT_DESC;
+
+
 
 /*Fixedsys 阴码 逆向 列行式*/
 // !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~

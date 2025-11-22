@@ -149,7 +149,7 @@ void StartOLEDRefreshTask(void *argument)
   /* USER CODE BEGIN StartOLEDRefreshTask */
 
   OLED_Init();
-  //Menu_Init();
+  OLEDUI_Init();
 
 
   /* Infinite loop */

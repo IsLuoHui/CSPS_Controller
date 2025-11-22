@@ -1,28 +1,6 @@
 ﻿#include "timRefresh.h"
-#include "ovoui.h"
-#include "oledFont.h"
-#include "oledSPI.h"
 
 extern TIM_HandleTypeDef htim1;
-
-
-static void EaseOut(int16_t* value, int16_t target, uint8_t division) {
-    if (*value == target) return;
-    int16_t diff = target - *value;
-    if (diff == 0) return;
-    int16_t step = diff / division;
-    if (step == 0) step = (diff > 0) ? 1 : -1;
-    *value += step;
-}
-
-static void EaseOutU8(uint8_t* value, uint8_t target, uint8_t division) {
-    if (*value == target) return;
-    int16_t diff = (int16_t)target - (int16_t)(*value);
-    int16_t step = diff / division;
-    if (step == 0) step = (diff > 0) ? 1 : -1;
-    int16_t result = (int16_t)(*value) + step;
-    *value = (uint8_t)result;
-}
 
 void TimRefresh_Init(void) {
     HAL_TIM_Base_Start_IT(&htim1);
