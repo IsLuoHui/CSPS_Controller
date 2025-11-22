@@ -29,7 +29,7 @@
 #include "oledSPI.h"
 #include "ovoui.h"
 #include "oledFont.h"
-#include "newUI.h"
+#include "easebridge.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -150,7 +150,7 @@ void StartOLEDRefreshTask(void *argument)
 {
   /* USER CODE BEGIN StartOLEDRefreshTask */
   extern uint8_t FrameBuffer[OLED_BUFFER_SIZE];
-  extern AHVal anim1;
+  extern EaseVar anim1;
   OLED_Init();
   //Menu_Init();
 

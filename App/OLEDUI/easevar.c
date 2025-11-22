@@ -1,6 +1,7 @@
-﻿#include "newUI.h"
+﻿#include "easevar.h"
 #include <math.h>
 
+#pragma region // 缓动函数实现
 // 线性 (Linear) 匀速
 float easeLinear_(const float t) {
     return t;
@@ -55,23 +56,14 @@ float easeOutElastic_(const float t) {
 
 //frequency → 控制回弹次数
 //decay → 控制衰减速度（幅度大小）
-float easeOutElasticTest_(const float t,const float frequency,const float decay) {
+float easeOutElasticTest_(const float t, const float frequency, const float decay) {
     if (t == 0.0f) return 0.0f;
     if (t == 1.0f) return 1.0f;
     return powf(2.0f, -decay * t) * sinf(frequency * t * M_PI) + 1.0f;
 }
+#pragma endregion
 
-AHVal anim1 = {
-    .currentTick = 0,
-    .maxTick = 0,
-    .startValue = 0,
-    .currentValue = 0,
-    .endValue = 0,
-    .easingFunction = easeOutElastic_,
-    .status = 1
-};
-
-void Ease_SetFunc(EaseType type,AHVal *self){
+void Ease_SetFunc(EaseType type,EaseVar *self){
     switch (type) {
         case easeNone:
             self->easingFunction = NULL;
@@ -108,7 +100,7 @@ void Ease_SetFunc(EaseType type,AHVal *self){
     }
 }
 
-EaseType Ease_GetFunc(AHVal *self) {
+EaseType Ease_GetFunc(EaseVar *self) {
     if(self->easingFunction) {
         if (self->easingFunction == easeLinear_) return easeLinear;
         else if (self->easingFunction == easeInQuad_) return easeInQuad;
@@ -125,23 +117,23 @@ EaseType Ease_GetFunc(AHVal *self) {
     }
 }
 
-void AHVal_Update(AHVal *self) {
+void EaseVar_Update(EaseVar *self) {
     if (self == NULL) return;
 
     // 如果当前是空闲状态，不需要更新
-    if (self->status == AHVAL_IDLE) {
+    if (self->status == EASEVAR_IDLE) {
         return;
     }
 
     // 如果已经到达最大tick，说明动画完成
     if (self->currentTick >= self->maxTick) {
         self->currentValue = self->endValue;
-        self->status = AHVAL_IDLE;   // 切换为空闲状态
+        self->status = EASEVAR_IDLE; // 切换为空闲状态
         return;
     }
 
     // 归一化时间 [0,1]
-    const float t = (float)self->currentTick / (float)self->maxTick;
+    const float t = (float) self->currentTick / (float) self->maxTick;
 
     // 缓动进度
     float p = 0.0f;
@@ -152,40 +144,40 @@ void AHVal_Update(AHVal *self) {
     }
 
     // 插值计算当前值
-    self->currentValue = (int16_t)(self->startValue + (self->endValue - self->startValue) * p);
+    self->currentValue = (int16_t) (self->startValue + (self->endValue - self->startValue) * p);
 
     // tick递增
     self->currentTick++;
 }
 
-void AHVal_SetHard(AHVal *self, int16_t value) {
+void EaseVar_SetHard(EaseVar *self, int16_t value) {
     if (self == NULL) return;
     self->currentValue = value;
-    self->startValue   = value;
-    self->endValue     = value;
-    self->currentTick  = 0;
-    self->status       = AHVAL_IDLE;
+    self->startValue = value;
+    self->endValue = value;
+    self->currentTick = 0;
+    self->status = EASEVAR_IDLE;
 }
 
-void AHVal_SetSoftEnd(AHVal *self, int16_t endValue, uint16_t maxTick) {
+void EaseVar_SetSoftEnd(EaseVar *self, int16_t endValue, uint16_t maxTick) {
     if (self == NULL) return;
-    self->endValue    = endValue;
-    self->maxTick     = maxTick;
+    self->endValue = endValue;
+    self->maxTick = maxTick;
     self->currentTick = 0;
 
-    if (self->status == AHVAL_IDLE) {
+    if (self->status == EASEVAR_IDLE) {
         // 空闲时，起点就是当前值
-        self->startValue   = self->currentValue;
-        self->status       = AHVAL_RUNNING;
+        self->startValue = self->currentValue;
+        self->status = EASEVAR_RUNNING;
     }
     // 如果正在运行，只更新目标值，不改变起点
 }
 
-void AHVal_SetSoftRestart(AHVal *self, int16_t endValue, uint16_t maxTick) {
+void EaseVar_SetSoftRestart(EaseVar *self, int16_t endValue, uint16_t maxTick) {
     if (self == NULL) return;
-    self->startValue   = self->currentValue; // 当前值作为新的起点
-    self->endValue     = endValue;
-    self->maxTick      = maxTick;
-    self->currentTick  = 0;
-    self->status       = AHVAL_RUNNING;
+    self->startValue = self->currentValue; // 当前值作为新的起点
+    self->endValue = endValue;
+    self->maxTick = maxTick;
+    self->currentTick = 0;
+    self->status = EASEVAR_RUNNING;
 }

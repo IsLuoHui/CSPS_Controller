@@ -1,6 +1,6 @@
 ﻿#include "timRefresh.h"
 #include "key.h"
-#include "newUI.h"
+#include "easebridge.h"
 #include "ovoui.h"
 #include "oledFont.h"
 #include "oledSPI.h"
@@ -35,7 +35,7 @@ void TimRefresh_Init(void) {
     HAL_TIM_Base_Start_IT(&htim1);
 }
 
-extern AHVal anim1;
+extern EaseVar anim1;
 
 void OLED_Layout_Refresh(void) {
     if (Key3_Process()==ShortKeyDown||Key3_Process()==LongKeyTrigger) {
@@ -43,14 +43,14 @@ void OLED_Layout_Refresh(void) {
         //On_Menu_Next();
 
         printf("3\r\n");
-        AHVal_SetSoftRestart(&anim1, 80,TICKMAX);
+        EaseVar_SetSoftRestart(&anim1, 80,TICKMAX);
     }
     else if (Key1_Process()==ShortKeyDown||Key1_Process()==LongKeyTrigger) {
         key1s=0;
         //On_Menu_Prev();
 
         printf("2\r\n");
-        AHVal_SetSoftRestart(&anim1, 0, TICKMAX);
+        EaseVar_SetSoftRestart(&anim1, 0, TICKMAX);
     }
     else if (Key2_Process()==ShortKeyDown||Key2_Process()==LongKeyTrigger) {
         key2s=0;
@@ -69,10 +69,10 @@ void OLED_Layout_Refresh(void) {
         Ease_SetFunc(easeOutCubic,&anim1);
         printf("%d",Ease_GetFunc(&anim1));
         printf("1\r\n");
-        AHVal_SetSoftRestart(&anim1, 40, TICKMAX);
+        EaseVar_SetSoftRestart(&anim1, 40, TICKMAX);
     }
 
-    AHVal_Update(&anim1);
+    EaseVar_Update(&anim1);
     /*
     // TODO 动画调整
     EaseOut(&menuOffsetX, menuOffsetX_Target, 5);
