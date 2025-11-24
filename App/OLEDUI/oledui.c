@@ -13,8 +13,12 @@ extern FONT_DESC font_8x16;
 extern FONT_DESC font_5x7;
 
 //ELEMENT testIcon={0, 0, ICON48W, ICON48H, OLED_MIX_COVER, (uint8_t*)ICON_48X48[2]};
-TEXT testText = {0, 0, " !\"#$%&'()", OLED_MIX_COVER, &font_8x16, {0}, 0};
-
+TEXT testText0 = {0, 0, " !\"#$%&'()*+,-./", OLED_MIX_COVER, &font_5x7, {0}, 0};
+TEXT testText1 = {0, 8, "0123456789:;<=>?", OLED_MIX_COVER, &font_5x7, {0}, 0};
+TEXT testText2 = {0, 16, "@ABCDEFGHIJKLMNO", OLED_MIX_COVER, &font_5x7, {0}, 0};
+TEXT testText3 = {0, 24, "PQRSTUVWXYZ[\\]^_", OLED_MIX_COVER, &font_5x7, {0}, 0};
+TEXT testText4 = {0, 32, "`abcdefghijklmno", OLED_MIX_COVER, &font_5x7, {0}, 0};
+TEXT testText5 = {0, 40, "pqrstuvwxyz{|}~", OLED_MIX_COVER, &font_5x7, {0}, 0};
 
 void OLED_Draw_Point(uint8_t x, uint8_t y, OLED_MIX_MODE mix) {
     if (x >= OLED_WIDTH_PIXEL || y >= OLED_HEIGHT_PIXEL) return;
@@ -235,13 +239,12 @@ void TEXT_Preprocess(TEXT *text) {
     text->fontwidth = strlen(text->str) * fd->width;
 }
 
-
 void OLED_Draw_Text(TEXT text) {
     if (!text.str || !text.fontdesc) return;
-    if (text.mix == OLED_MIX_HIDE) return; // 混合模式为隐藏时不绘制
+    if (text.mix == OLED_MIX_HIDE) return;
 
     const FONT_DESC *fd = text.fontdesc;
-    int16_t x_start = text.x;
+    int16_t x_cursor = text.x;
     int16_t y = text.y;
     const char *str = text.str;
 
@@ -251,53 +254,70 @@ void OLED_Draw_Text(TEXT text) {
     uint16_t text_w = max_chars * fd->width;
 
     // 如果整体在屏幕外就直接 return
-    if (x_start + text_w <= 0 || x_start >= OLED_WIDTH_PIXEL ||
+    if (x_cursor + text_w <= 0 || x_cursor >= OLED_WIDTH_PIXEL ||
         y + fd->height <= 0 || y >= OLED_HEIGHT_PIXEL)
         return;
 
-    int16_t x_cursor = x_start;
+    // 起始页和偏移
     int16_t page_start = (y >= 0) ? (y / 8) : ((y - 7) / 8);
-    uint8_t y_offset = (y >= 0) ? (y % 8) : ((8 - ((-y) % 8)) % 8);
-    uint8_t page_cnt = (fd->height + y_offset + 7) / 8;
+    uint8_t y_offset   = (y >= 0) ? (y % 8) : ((8 - ((-y) % 8)) % 8);
+    uint8_t page_cnt   = (fd->height + y_offset + 7) / 8;
+    int bytes_per_col  = (fd->height + 7) / 8;
 
-    // 每列占用的字节数（页数）
-    int bytes_per_col = (fd->height + 7) / 8;
-
+    // 遍历字符串
     for (uint8_t i = 0; str[i] != '\0' && i < 128; i++, x_cursor += fd->width) {
         if (!text.font[i]) continue;
         const uint8_t *font_data = text.font[i];
 
+        // 遍历列
         for (uint8_t col_offset = 0; col_offset < fd->width; col_offset++) {
             uint8_t prev = 0;
 
+            // 遍历页
             for (uint8_t page = 0; page < page_cnt; page++) {
                 uint8_t data = 0;
                 if (page < bytes_per_col) {
                     data = font_data[col_offset + page * fd->width];
                 }
 
+                // 拼接跨页数据
                 uint8_t out = (page == 0)
-                                  ? (data << y_offset)
-                                  : ((data << y_offset) | (prev >> (8 - y_offset)));
+                              ? (data << y_offset)
+                              : ((data << y_offset) | (prev >> (8 - y_offset)));
                 prev = data;
 
                 int16_t draw_col = x_cursor + col_offset;
-                int16_t fb_page = page_start + page;
+                int16_t fb_page  = page_start + page;
 
-                if ((uint16_t) draw_col < OLED_WIDTH_PIXEL &&
-                    (uint16_t) fb_page < (OLED_HEIGHT_PIXEL / 8)) {
+                if ((uint16_t)draw_col < OLED_WIDTH_PIXEL &&
+                    (uint16_t)fb_page < (OLED_HEIGHT_PIXEL / 8)) {
+                    uint8_t *fb_line = &FrameBuffer[fb_page * OLED_WIDTH_PIXEL];
+
+                    // 计算掩码：只更新对应位
+                    uint8_t mask;
+                    if (page == 0) {
+                        mask = 0xFF << y_offset; // 第一页更新高位
+                    } else if (page == page_cnt - 1 && (fd->height + y_offset) % 8 != 0) {
+                        // 最后一页可能不足8行
+                        uint8_t valid_bits = (fd->height + y_offset) % 8;
+                        mask = (1 << valid_bits) - 1;
+                    } else {
+                        mask = 0xFF; // 中间页全更新
+                    }
+
+                    // 混合模式
                     switch (text.mix) {
                         case OLED_MIX_COVER:
-                            FrameBuffer[fb_page * OLED_WIDTH_PIXEL + draw_col] = out;
+                            fb_line[draw_col] = (fb_line[draw_col] & ~mask) | (out & mask);
                             break;
                         case OLED_MIX_OR:
-                            FrameBuffer[fb_page * OLED_WIDTH_PIXEL + draw_col] |= out;
+                            fb_line[draw_col] |= (out & mask);
                             break;
                         case OLED_MIX_AND:
-                            FrameBuffer[fb_page * OLED_WIDTH_PIXEL + draw_col] &= out;
+                            fb_line[draw_col] &= (out | ~mask);
                             break;
                         case OLED_MIX_XOR:
-                            FrameBuffer[fb_page * OLED_WIDTH_PIXEL + draw_col] ^= out;
+                            fb_line[draw_col] ^= (out & mask);
                             break;
                     }
                 }
@@ -306,10 +326,16 @@ void OLED_Draw_Text(TEXT text) {
     }
 }
 
+
 uint8_t sbuf[255] = {0};
 
 void OLEDUI_Init(void) {
-    TEXT_Preprocess(&testText);
+    TEXT_Preprocess(&testText0);
+    TEXT_Preprocess(&testText1);
+    TEXT_Preprocess(&testText2);
+    TEXT_Preprocess(&testText3);
+    TEXT_Preprocess(&testText4);
+    TEXT_Preprocess(&testText5);
     memset(sbuf, 0xff, 255);
 }
 
@@ -317,12 +343,23 @@ void OLEDUI_Refresh(void) {
     memset(FrameBuffer, 0, OLED_BUFFER_SIZE);
 
     //testIcon.x=anim1.currentValue;
-    testText.x = ease_var0.currentValue;
-    OLED_Draw_Text(testText);
-    ELEMENT testRect = {
-        testText.x, testText.y, testText.fontwidth, testText.y + testText.fontdesc->height, OLED_MIX_XOR, &sbuf
-    };
-    OLED_Draw_Element(testRect);
+    testText0.x = ease_var0.currentValue;
+    testText1.x = ease_var0.currentValue;
+    testText2.x = ease_var0.currentValue;
+    testText3.x = ease_var0.currentValue;
+    testText4.x = ease_var0.currentValue;
+    testText5.x = ease_var0.currentValue;
+    OLED_Draw_Text(testText0);
+    OLED_Draw_Text(testText1);
+    OLED_Draw_Text(testText2);
+    OLED_Draw_Text(testText3);
+    OLED_Draw_Text(testText4);
+    OLED_Draw_Text(testText5);
+
+    //ELEMENT testRect = {
+    //    testText0.x, testText0.y, testText0.fontwidth, testText0.y + testText0.fontdesc->height, OLED_MIX_XOR, &sbuf
+    //};
+    //OLED_Draw_Element(testRect);
     //printf("%d", testText.fontwidth);
     //OLED_Draw_Element(testIcon);
 
