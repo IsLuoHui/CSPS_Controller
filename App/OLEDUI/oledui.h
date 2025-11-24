@@ -4,11 +4,11 @@
 #include "oledFont.h"
 
 typedef enum {
-    OLED_MIX_HIDE   = 0x00,   // 隐藏
-    OLED_MIX_COVER  = 0x01,   // 覆盖=
-    OLED_MIX_OR     = 0x02,   // 叠加|
-    OLED_MIX_AND    = 0x04,   // 叠底&
-    OLED_MIX_XOR    = 0x08    // 反色^
+    OLED_MIX_HIDE   = 0x00,   // NULL
+    OLED_MIX_COVER  = 0x01,   // =
+    OLED_MIX_OR     = 0x02,   // |
+    OLED_MIX_AND    = 0x04,   // &
+    OLED_MIX_XOR    = 0x08    // ^
 } OLED_MIX_MODE;
 
 /**
@@ -47,13 +47,15 @@ typedef struct {
     uint16_t fontwidth;
 } TEXT;
 
+// unsigned
 void OLED_Draw_Point(uint8_t x, uint8_t y, OLED_MIX_MODE mix);
 void OLED_Draw_Line(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MODE mix);
 void OLED_Draw_DashedLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t dashlen, OLED_MIX_MODE mix);
 void OLED_Draw_Rect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MODE mix);
 void OLED_Draw_FillRect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, OLED_MIX_MODE mix);
-void OLED_Draw_Element(ELEMENT ele);
 
+// int16
+void OLED_Draw_Element(ELEMENT ele);
 void TEXT_Preprocess(TEXT* text);
 void OLED_Draw_Text(TEXT text);
 

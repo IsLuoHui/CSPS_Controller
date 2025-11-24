@@ -10,15 +10,16 @@ extern uint8_t FrameBuffer[OLED_BUFFER_SIZE];
 extern EaseVar anim1;
 extern EaseVar easevar[];
 extern FONT_DESC font_8x16;
+extern FONT_DESC font_12x16;
 extern FONT_DESC font_5x7;
 
 //ELEMENT testIcon={0, 0, ICON48W, ICON48H, OLED_MIX_COVER, (uint8_t*)ICON_48X48[2]};
-TEXT testText0 = {0, 0, " !\"#$%&'()*+,-./", OLED_MIX_COVER, &font_5x7, {0}, 0};
-TEXT testText1 = {0, 8, "0123456789:;<=>?", OLED_MIX_COVER, &font_5x7, {0}, 0};
-TEXT testText2 = {0, 16, "@ABCDEFGHIJKLMNO", OLED_MIX_COVER, &font_5x7, {0}, 0};
-TEXT testText3 = {0, 24, "PQRSTUVWXYZ[\\]^_", OLED_MIX_COVER, &font_5x7, {0}, 0};
-TEXT testText4 = {0, 32, "`abcdefghijklmno", OLED_MIX_COVER, &font_5x7, {0}, 0};
-TEXT testText5 = {0, 40, "pqrstuvwxyz{|}~", OLED_MIX_COVER, &font_5x7, {0}, 0};
+TEXT testText0 = {0, 0, " !\"#$%&'()*+,-./", OLED_MIX_COVER, &font_12x16, {0}, 0};
+//EXT testText1 = {0, 8, "0123456789:;<=>?", OLED_MIX_COVER, &font_5x7, {0}, 0};
+//EXT testText2 = {0, 16, "@ABCDEFGHIJKLMNO", OLED_MIX_COVER, &font_5x7, {0}, 0};
+//EXT testText3 = {0, 24, "PQRSTUVWXYZ[\\]^_", OLED_MIX_COVER, &font_5x7, {0}, 0};
+//EXT testText4 = {0, 32, "`abcdefghijklmno", OLED_MIX_COVER, &font_5x7, {0}, 0};
+//EXT testText5 = {0, 40, "pqrstuvwxyz{|}~", OLED_MIX_COVER, &font_5x7, {0}, 0};
 
 void OLED_Draw_Point(uint8_t x, uint8_t y, OLED_MIX_MODE mix) {
     if (x >= OLED_WIDTH_PIXEL || y >= OLED_HEIGHT_PIXEL) return;
@@ -331,11 +332,11 @@ uint8_t sbuf[255] = {0};
 
 void OLEDUI_Init(void) {
     TEXT_Preprocess(&testText0);
-    TEXT_Preprocess(&testText1);
-    TEXT_Preprocess(&testText2);
-    TEXT_Preprocess(&testText3);
-    TEXT_Preprocess(&testText4);
-    TEXT_Preprocess(&testText5);
+    //TEXT_Preprocess(&testText1);
+    //TEXT_Preprocess(&testText2);
+    //TEXT_Preprocess(&testText3);
+    //TEXT_Preprocess(&testText4);
+    //TEXT_Preprocess(&testText5);
     memset(sbuf, 0xff, 255);
 }
 
@@ -344,17 +345,17 @@ void OLEDUI_Refresh(void) {
 
     //testIcon.x=anim1.currentValue;
     testText0.x = ease_var0.currentValue;
-    testText1.x = ease_var0.currentValue;
-    testText2.x = ease_var0.currentValue;
-    testText3.x = ease_var0.currentValue;
-    testText4.x = ease_var0.currentValue;
-    testText5.x = ease_var0.currentValue;
+    //testText1.x = ease_var0.currentValue;
+    //testText2.x = ease_var0.currentValue;
+    //testText3.x = ease_var0.currentValue;
+    //testText4.x = ease_var0.currentValue;
+    //testText5.x = ease_var0.currentValue;
     OLED_Draw_Text(testText0);
-    OLED_Draw_Text(testText1);
-    OLED_Draw_Text(testText2);
-    OLED_Draw_Text(testText3);
-    OLED_Draw_Text(testText4);
-    OLED_Draw_Text(testText5);
+    //OLED_Draw_Text(testText1);
+    //OLED_Draw_Text(testText2);
+    //OLED_Draw_Text(testText3);
+    //OLED_Draw_Text(testText4);
+    //OLED_Draw_Text(testText5);
 
     //ELEMENT testRect = {
     //    testText0.x, testText0.y, testText0.fontwidth, testText0.y + testText0.fontdesc->height, OLED_MIX_XOR, &sbuf

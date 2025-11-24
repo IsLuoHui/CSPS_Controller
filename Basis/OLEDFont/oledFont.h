@@ -8,12 +8,6 @@ typedef struct {
     uint8_t height;
 } FONT_DESC;
 
-
-
-/*Fixedsys 阴码 逆向 列行式*/
-// !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
-extern const unsigned char ASCII_8X16[][16];
-
 //图标 垂直扫描，从左到右，从上到下，高位在前
 #define ICON48W 48
 #define ICON48H 48
