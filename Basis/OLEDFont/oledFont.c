@@ -1,6 +1,5 @@
 ﻿#include "oledFont.h"
 
-
 // !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
 #pragma region // ASCII_5X7
 const uint8_t ASCII_5X7[][5] = {
@@ -394,7 +393,6 @@ const unsigned char ICON_48X48[][288] =
     }
 };
 #pragma endregion
-
 
 FONT_DESC font_5x7 = {(const uint8_t *) ASCII_5X7, 5, 7};
 FONT_DESC font_8x16 = {(const uint8_t *) ASCII_8X16, 8, 16};

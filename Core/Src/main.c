@@ -32,6 +32,7 @@
 #include "key.h"
 #include "easebridge.h"
 #include "timRefresh.h"
+#include "CSPScom.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -168,7 +169,8 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+static uint16_t done=0;
+extern volatile uint8_t doRefresh;
 /* USER CODE END 4 */
 
 /**
@@ -186,6 +188,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   {
     Key_Scan_Refresh();
     EasingVar_Refresh();
+    done++;
+    if (done==200) {
+      done=0;
+      doRefresh=1;
+    }
   }
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM2)

@@ -11,17 +11,6 @@ typedef enum {
     OLED_MIX_XOR    = 0x08    // ^
 } OLED_MIX_MODE;
 
-/**
- *  \brief ELEMENT结构体 用于显示任意矩形元素
- *  \param x 左向右X正方向
- *  \param y 上向下Y正方向
- *  \param w 矩形宽度
- *  \param h 矩形高度
- *  \param mix 混合模式
- *  \param *data 数据指针
- *  \warning 确保`*data`指向数组能转化为矩形
- *
- */
 typedef struct {
     int16_t x, y;
     uint8_t w, h;
@@ -29,15 +18,6 @@ typedef struct {
     uint8_t *data;
 } ELEMENT;
 
-/**
- *  \brief TEXT结构体 用于表述显示文本
- *  \param x 显示起始X坐标
- *  \param y 显示起始Y坐标
- *  \param *str 显示文本
- *  \param mix 混合模式
- *  \param *font 字模数组指针，通过`Text_Preprocess(TEXT *text)`函数自动处理
- *  \param fontwidth 字模显示宽度，通过`Text_Preprocess(TEXT *text)`函数自动处理
- */
 typedef struct {
     int16_t x, y;
     char *str;
@@ -46,6 +26,34 @@ typedef struct {
     uint8_t *font[64];
     uint16_t fontwidth;
 } TEXT;
+
+#pragma region //UI菜单
+typedef struct
+{
+    TEXT text;
+    void (*action)(void);
+}LIST;
+
+typedef struct
+{
+    TEXT text;
+    ELEMENT ele; //选项元素
+    LIST *list;
+    uint8_t listnum; //列表个数
+}OPTION;
+
+typedef struct
+{
+    OPTION *opt;    //选项列表
+    uint8_t optnum;  //选项个数
+    uint8_t leftend; //左端
+}MENU;
+
+typedef struct {
+    int16_t x0,y0,x1,y1;
+}Rect;
+
+#pragma endregion
 
 // unsigned
 void OLED_Draw_Point(uint8_t x, uint8_t y, OLED_MIX_MODE mix);
@@ -59,7 +67,14 @@ void OLED_Draw_Element(ELEMENT ele);
 void TEXT_Preprocess(TEXT* text);
 void OLED_Draw_Text(TEXT text);
 
+void EaseVar_Init(void);
+void EaseVar_Refresh(void);
 void OLEDUI_Init(void);
 void OLEDUI_Refresh(void);
+void Text_Refresh(void);
+
+void Trigger_1(void);
+void Trigger_2(void);
+void Trigger_3(void);
 
 #endif //CSPS_CONTROLLER_OLEDUI_H

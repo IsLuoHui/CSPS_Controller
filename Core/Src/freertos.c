@@ -29,6 +29,7 @@
 #include "oledSPI.h"
 #include "oledui.h"
 #include <stdio.h>
+#include "CSPScom.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,7 +49,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-
+extern volatile uint8_t doRefresh;
 /* USER CODE END Variables */
 /* Definitions for testTask */
 osThreadId_t testTaskHandle;
@@ -149,12 +150,17 @@ void StartOLEDRefreshTask(void *argument)
   /* USER CODE BEGIN StartOLEDRefreshTask */
 
   OLED_Init();
+  EaseVar_Init();
   OLEDUI_Init();
 
 
   /* Infinite loop */
   for(;;)
   {
+    if (doRefresh==1) {
+      CSPS_Var_Refresh();
+      doRefresh=0;
+    }
     OLEDUI_Refresh();
     //OLED_Draw_Rect(anim1.currentValue,0,anim1.currentValue+ICON48W,ICON48H,OLED_MIX_COVER);
 

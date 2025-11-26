@@ -46,7 +46,8 @@ EaseType Ease_GetFunc(EaseVar *self);
 
 void EaseVar_Update(EaseVar *self);
 void EaseVar_SetHard(EaseVar *self, int16_t value);
-void EaseVar_SetSoftEnd(EaseVar *self, int16_t endValue, uint16_t maxTick);
-void EaseVar_SetSoftRestart(EaseVar *self, int16_t endValue, uint16_t maxTick);
+void EaseVar_SetHardEnd(EaseVar *self, int16_t endValue, uint16_t maxTick);
+void EaseVar_SetHardRestart(EaseVar *self, int16_t endValue, uint16_t maxTick);
+void EaseVar_SetSoftRestart(EaseVar *self, int16_t endValue);
 
 #endif //EASEVAR_H

@@ -4,23 +4,41 @@
 #include "oledFont.h"
 #include "easebridge.h"
 #include <stdio.h>
+#include "easevar.h"
+#include <math.h>
 
+void float_to_string(char *buf, float value, int precision) {
+    // 处理负数
+    if (value < 0) {
+        *buf++ = '-';
+        value = -value;
+    }
+
+    // 整数部分
+    int int_part = (int)value;
+
+    // 小数部分
+    float frac = value - int_part;
+    int frac_part = (int)(frac * pow(10, precision) + 0.5f); // 四舍五入
+
+    // 拼接字符串
+    sprintf(buf, "%d.%0*d", int_part, precision, frac_part);
+}
 
 extern uint8_t FrameBuffer[OLED_BUFFER_SIZE];
-extern EaseVar anim1;
 extern EaseVar easevar[];
+extern FONT_DESC font_5x7;
 extern FONT_DESC font_8x16;
 extern FONT_DESC font_12x16;
-extern FONT_DESC font_5x7;
+
+uint16_t InputVoltage=0;
+uint16_t InputCurrent=0;
+uint16_t OutputVoltage=0;
+uint16_t OutputCurrent=0;
 
 //ELEMENT testIcon={0, 0, ICON48W, ICON48H, OLED_MIX_COVER, (uint8_t*)ICON_48X48[2]};
-TEXT testText0 = {0, 0, " !\"#$%&'()*+,-./", OLED_MIX_COVER, &font_12x16, {0}, 0};
-//EXT testText1 = {0, 8, "0123456789:;<=>?", OLED_MIX_COVER, &font_5x7, {0}, 0};
-//EXT testText2 = {0, 16, "@ABCDEFGHIJKLMNO", OLED_MIX_COVER, &font_5x7, {0}, 0};
-//EXT testText3 = {0, 24, "PQRSTUVWXYZ[\\]^_", OLED_MIX_COVER, &font_5x7, {0}, 0};
-//EXT testText4 = {0, 32, "`abcdefghijklmno", OLED_MIX_COVER, &font_5x7, {0}, 0};
-//EXT testText5 = {0, 40, "pqrstuvwxyz{|}~", OLED_MIX_COVER, &font_5x7, {0}, 0};
 
+#pragma region //绘制
 void OLED_Draw_Point(uint8_t x, uint8_t y, OLED_MIX_MODE mix) {
     if (x >= OLED_WIDTH_PIXEL || y >= OLED_HEIGHT_PIXEL) return;
     uint8_t bitmask = 0x01 << (y & 0x07);
@@ -261,9 +279,9 @@ void OLED_Draw_Text(TEXT text) {
 
     // 起始页和偏移
     int16_t page_start = (y >= 0) ? (y / 8) : ((y - 7) / 8);
-    uint8_t y_offset   = (y >= 0) ? (y % 8) : ((8 - ((-y) % 8)) % 8);
-    uint8_t page_cnt   = (fd->height + y_offset + 7) / 8;
-    int bytes_per_col  = (fd->height + 7) / 8;
+    uint8_t y_offset = (y >= 0) ? (y % 8) : ((8 - ((-y) % 8)) % 8);
+    uint8_t page_cnt = (fd->height + y_offset + 7) / 8;
+    int bytes_per_col = (fd->height + 7) / 8;
 
     // 遍历字符串
     for (uint8_t i = 0; str[i] != '\0' && i < 128; i++, x_cursor += fd->width) {
@@ -283,15 +301,15 @@ void OLED_Draw_Text(TEXT text) {
 
                 // 拼接跨页数据
                 uint8_t out = (page == 0)
-                              ? (data << y_offset)
-                              : ((data << y_offset) | (prev >> (8 - y_offset)));
+                                  ? (data << y_offset)
+                                  : ((data << y_offset) | (prev >> (8 - y_offset)));
                 prev = data;
 
                 int16_t draw_col = x_cursor + col_offset;
-                int16_t fb_page  = page_start + page;
+                int16_t fb_page = page_start + page;
 
-                if ((uint16_t)draw_col < OLED_WIDTH_PIXEL &&
-                    (uint16_t)fb_page < (OLED_HEIGHT_PIXEL / 8)) {
+                if ((uint16_t) draw_col < OLED_WIDTH_PIXEL &&
+                    (uint16_t) fb_page < (OLED_HEIGHT_PIXEL / 8)) {
                     uint8_t *fb_line = &FrameBuffer[fb_page * OLED_WIDTH_PIXEL];
 
                     // 计算掩码：只更新对应位
@@ -326,36 +344,58 @@ void OLED_Draw_Text(TEXT text) {
         }
     }
 }
+#pragma endregion
 
+//uint8_t sbuf[255] = {0};
 
-uint8_t sbuf[255] = {0};
+void EaseVar_Init(void) {
+    EaseVar_SetHard(&monitor_x_var,16);
+}
+
+void EaseVar_Refresh(void) {
+    EaseVar_Update(&easevar[0]);
+}
 
 void OLEDUI_Init(void) {
-    TEXT_Preprocess(&testText0);
-    //TEXT_Preprocess(&testText1);
-    //TEXT_Preprocess(&testText2);
-    //TEXT_Preprocess(&testText3);
-    //TEXT_Preprocess(&testText4);
+    EaseVar_Init();
+    //Text_Refresh();
     //TEXT_Preprocess(&testText5);
-    memset(sbuf, 0xff, 255);
+    //memset(sbuf, 0xff, 255);
+}
+
+void Text_Refresh(void) {
+    //TEXT_Preprocess(&InputVoltageText);
+    //TEXT_Preprocess(&InputCurrentText);
+    //TEXT_Preprocess(&OutputVoltageText);
+    //TEXT_Preprocess(&OutputCurrentText);
 }
 
 void OLEDUI_Refresh(void) {
     memset(FrameBuffer, 0, OLED_BUFFER_SIZE);
+    EaseVar_Refresh();
+    //
+    static char buf0[5];
+    static char buf1[5];
+    static char buf2[5];
+    static char buf3[5];
+    float_to_string(buf0,InputVoltage/32.0f,1);
+    float_to_string(buf1,InputCurrent/64.0f,1);
+    float_to_string(buf2,OutputVoltage/256.0f,1);
+    float_to_string(buf3,OutputCurrent/64.0f,1);
+    //sprintf(buf, "%.2f", InputVoltage/32.0f);
+    TEXT InputVoltageText = {0, monitor_x_var.currentValue, buf0, OLED_MIX_COVER, &font_12x16, {0}, 0};
+    TEXT InputCurrentText = {0, 48-monitor_x_var.currentValue, buf1, OLED_MIX_COVER, &font_12x16, {0}, 0};
+    TEXT OutputVoltageText = {80, monitor_x_var.currentValue, buf2, OLED_MIX_COVER, &font_12x16, {0}, 0};
+    TEXT OutputCurrentText = {80, 48-monitor_x_var.currentValue, buf3, OLED_MIX_COVER, &font_12x16, {0}, 0};
+    TEXT_Preprocess(&InputVoltageText);
+    TEXT_Preprocess(&InputCurrentText);
+    TEXT_Preprocess(&OutputVoltageText);
+    TEXT_Preprocess(&OutputCurrentText);
+    OLED_Draw_Text(InputVoltageText);
+    OLED_Draw_Text(InputCurrentText);
+    OLED_Draw_Text(OutputVoltageText);
+    OLED_Draw_Text(OutputCurrentText);
 
-    //testIcon.x=anim1.currentValue;
-    testText0.x = ease_var0.currentValue;
-    //testText1.x = ease_var0.currentValue;
-    //testText2.x = ease_var0.currentValue;
-    //testText3.x = ease_var0.currentValue;
-    //testText4.x = ease_var0.currentValue;
-    //testText5.x = ease_var0.currentValue;
-    OLED_Draw_Text(testText0);
-    //OLED_Draw_Text(testText1);
-    //OLED_Draw_Text(testText2);
-    //OLED_Draw_Text(testText3);
-    //OLED_Draw_Text(testText4);
-    //OLED_Draw_Text(testText5);
 
     //ELEMENT testRect = {
     //    testText0.x, testText0.y, testText0.fontwidth, testText0.y + testText0.fontdesc->height, OLED_MIX_XOR, &sbuf
@@ -365,4 +405,19 @@ void OLEDUI_Refresh(void) {
     //OLED_Draw_Element(testIcon);
 
     OLED_SendBuffer();
+}
+
+//左
+void Trigger_1(void) {
+    EaseVar_SetHardRestart(&monitor_x_var, 16, 100);
+}
+
+//中
+void Trigger_2(void) {
+
+}
+
+//右
+void Trigger_3(void) {
+    EaseVar_SetHardRestart(&monitor_x_var, -16, 100);
 }

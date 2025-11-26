@@ -159,7 +159,7 @@ void EaseVar_SetHard(EaseVar *self, int16_t value) {
     self->status = EASEVAR_IDLE;
 }
 
-void EaseVar_SetSoftEnd(EaseVar *self, int16_t endValue, uint16_t maxTick) {
+void EaseVar_SetHardEnd(EaseVar *self, int16_t endValue, uint16_t maxTick) {
     if (self == NULL) return;
     self->endValue = endValue;
     self->maxTick = maxTick;
@@ -173,7 +173,7 @@ void EaseVar_SetSoftEnd(EaseVar *self, int16_t endValue, uint16_t maxTick) {
     // 如果正在运行，只更新目标值，不改变起点
 }
 
-void EaseVar_SetSoftRestart(EaseVar *self, int16_t endValue, uint16_t maxTick) {
+void EaseVar_SetHardRestart(EaseVar *self, int16_t endValue, uint16_t maxTick) {
     if (self == NULL) return;
     self->startValue = self->currentValue; // 当前值作为新的起点
     self->endValue = endValue;
@@ -181,3 +181,24 @@ void EaseVar_SetSoftRestart(EaseVar *self, int16_t endValue, uint16_t maxTick) {
     self->currentTick = 0;
     self->status = EASEVAR_RUNNING;
 }
+
+void EaseVar_SetSoftRestart(EaseVar *self, int16_t endValue) {
+    if (self == NULL) return;
+
+    // 剩余 tick = 总 tick - 已经走过的 tick
+    uint16_t remainingTick = 0;
+    if (self->maxTick > self->currentTick) {
+        remainingTick = self->maxTick - self->currentTick;
+    }
+
+    // 用当前位置作为新的起点
+    self->startValue = self->currentValue;
+    self->endValue   = endValue;
+
+    // 重新设置 tick：用剩余 tick 继续缓动
+    self->maxTick    = remainingTick;
+    self->currentTick = 0;
+
+    self->status = EASEVAR_RUNNING;
+}
+

@@ -4,5 +4,6 @@
 
 void CSPS_Set_Fan_Speed_Max(void);
 void CSPS_Set_Fan_Stop(void);
+void CSPS_Var_Refresh(void);
 
 #endif //APP_CSPSCOM_H
