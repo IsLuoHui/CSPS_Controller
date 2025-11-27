@@ -8,6 +8,7 @@ float InputVoltage = 0;
 float InputCurrent = 0;
 float OutputVoltage = 0;
 float OutputCurrent = 0;
+float Temp1 = 0;
 float Temp2 = 0;
 
 volatile uint8_t doRefresh = 0;
@@ -95,6 +96,7 @@ void CSPS_Var_Refresh(void) {
     InputCurrent = CSPS_Get_Input_Current();
     OutputVoltage = CSPS_Get_Output_Voltage();
     OutputCurrent = CSPS_Get_Output_Current();
+    Temp1 = CSPS_Get_Temp1();
     Temp2 = CSPS_Get_Temp2();
     //Text_Refresh();
 }

@@ -1,6 +1,6 @@
 ﻿#ifndef EASEVAR_H
 #define EASEVAR_H
-#include "stdint.h"
+#include <stdint.h>
 
 #define EASEVAR_IDLE     0   // 空闲状态
 #define EASEVAR_RUNNING  1   // 运行中

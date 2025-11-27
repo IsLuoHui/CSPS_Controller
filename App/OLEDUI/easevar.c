@@ -1,4 +1,5 @@
 ﻿#include "easevar.h"
+#include <stddef.h>
 #include <math.h>
 
 #pragma region // 缓动函数实现

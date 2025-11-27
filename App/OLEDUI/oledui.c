@@ -5,24 +5,66 @@
 #include "easebridge.h"
 #include <stdio.h>
 #include "easevar.h"
-#include <math.h>
 
-void float_to_string(char *buf, float value, int precision) {
+void float_to_string(char *buf, size_t buf_size, float value, int precision) {
+    // 限制 precision 在 1~3 范围
+    if (precision < 1) precision = 1;
+    if (precision > 3) precision = 3;
+
+    // 检查缓冲区是否足够大
+    if (buf_size < 8) {
+        // 最少需要 "0.0\0" 这种长度
+        if (buf_size > 0) buf[0] = '\0';
+        return;
+    }
+
     // 处理负数
+    char *p = buf;
+    size_t remaining = buf_size;
     if (value < 0) {
-        *buf++ = '-';
+        *p++ = '-';
         value = -value;
+        remaining--;
     }
 
     // 整数部分
     int int_part = (int) value;
+    float frac = value - int_part;
 
     // 小数部分
-    float frac = value - int_part;
-    int frac_part = (int) (frac * pow(10, precision) + 0.5f); // 四舍五入
+    static const int scale_table[4] = {1, 10, 100, 1000};
+    int scale = scale_table[precision];
+    int frac_part = (int) (frac * scale + 0.5f); // 四舍五入
+    if (frac_part >= scale) {
+        // 处理进位
+        int_part += 1;
+        frac_part = 0;
+    }
 
-    // 拼接字符串
-    sprintf(buf, "%d.%0*d", int_part, precision, frac_part);
+    // 拼接整数部分
+    int written = snprintf(p, remaining, "%d", int_part);
+    if (written < 0 || (size_t) written >= remaining) {
+        buf[0] = '\0'; // 出错时返回空串
+        return;
+    }
+    p += written;
+    remaining -= written;
+
+    // 拼接小数点和小数部分
+    if (precision > 0 && remaining > 1) {
+        *p++ = '.';
+        remaining--;
+
+        // 拼接小数部分，手动补零
+        for (int i = precision - 1; i >= 0; i--) {
+            int digit = (frac_part / scale_table[i]) % 10;
+            if (remaining > 1) {
+                *p++ = '0' + digit;
+                remaining--;
+            }
+        }
+    }
+    *p='\0';
 }
 
 extern uint8_t FrameBuffer[OLED_BUFFER_SIZE];
@@ -36,6 +78,7 @@ extern float InputVoltage;
 extern float InputCurrent;
 extern float OutputVoltage;
 extern float OutputCurrent;
+extern float Temp1;
 extern float Temp2;
 
 static int8_t CurrentPage = 0;
@@ -354,12 +397,11 @@ void OLED_Draw_Text(TEXT text) {
 
 void EaseVar_Init(void) {
     EaseVar_SetHard(&monitor_x_var, 0);
-    EaseVar_SetHard(&monitor_y_var, 16);
 }
 
 void EaseVar_Refresh(void) {
+
     EaseVar_Update(&monitor_x_var);
-    EaseVar_Update(&monitor_y_var);
 }
 
 void OLEDUI_Init(void) {
@@ -375,48 +417,79 @@ void Text_Refresh(void) {
     //TEXT_Preprocess(&OutputCurrentText);
 }
 
+TEXT InputVoltageText = {0, 0, "", OLED_MIX_COVER, &font_12x16, {0}, 0};
+TEXT InputCurrentText = {0, 0, "", OLED_MIX_COVER, &font_12x16, {0}, 0};
+TEXT InputStatusText = {0, 0, "", OLED_MIX_COVER, &font_8x16, {0}, 0};
+TEXT Temp1Text = {0, 0, "", OLED_MIX_COVER, &font_8x16, {0}, 0};
+
+TEXT OutputVoltageText = {0, 0, "", OLED_MIX_COVER, &font_12x16, {0}, 0};
+TEXT OutputCurrentText = {0, 0, "", OLED_MIX_COVER, &font_12x16, {0}, 0};
+TEXT Temp2Text = {0, 0, "", OLED_MIX_COVER, &font_8x16, {0}, 0};
+
+
 void OLEDUI_InputRefresh(void) {
-    static char buf0[8];
-    static char buf1[8];
+    char buf0[9];
+    char buf1[9];
     char buf2[17] = "InputStatus:";
-    char buf3[17] = "Temp2:";
-    static char buf4[4];
-    float_to_string(buf0, InputVoltage, 2);
-    float_to_string(buf1, InputCurrent, 2);
-    float_to_string(buf4, Temp2, 1);
-    strcat(buf2, (PS_Status & 0x02) ? "OK" : "ERR");
+    char buf3[17] = "Temp1:";
+    char buf4[9];
+    float_to_string(buf0, sizeof(buf0), InputVoltage, 2);
+    float_to_string(buf1, sizeof(buf1), InputCurrent, 2);
+    float_to_string(buf4, sizeof(buf4), Temp1, 1);
+    strcat(buf2, (PS_Status & 0x02) ? "ON" : "OFF");
     strcat(buf3, buf4);
     strcat(buf3, "'C");
     strcat(buf0, "V");
     strcat(buf1, "A");
-    TEXT InputVoltageText = {monitor_x_var.currentValue, 16, buf0, OLED_MIX_COVER, &font_12x16, {0}, 0};
-    TEXT InputCurrentText = {monitor_x_var.currentValue, 32, buf1, OLED_MIX_COVER, &font_12x16, {0}, 0};
-    TEXT InputStatusText = {monitor_x_var.currentValue, 0, buf2, OLED_MIX_XOR, &font_8x16, {0}, 0};
-    TEXT Temp2Text = {monitor_x_var.currentValue, 48, buf3, OLED_MIX_XOR, &font_8x16, {0}, 0};
+    InputVoltageText.str = buf0;
+    InputCurrentText.str = buf1;
+    InputStatusText.str = buf2;
+    Temp2Text.str = buf3;
     TEXT_Preprocess(&InputVoltageText);
     TEXT_Preprocess(&InputCurrentText);
     TEXT_Preprocess(&InputStatusText);
     TEXT_Preprocess(&Temp2Text);
+    InputVoltageText.x = monitor_x_var.currentValue;
+    InputVoltageText.y = 16;
+    InputCurrentText.x = monitor_x_var.currentValue;
+    InputCurrentText.y = 32;
+    InputStatusText.x = monitor_x_var.currentValue;
+    InputStatusText.y = 0;
+    Temp2Text.x = monitor_x_var.currentValue;
+    Temp2Text.y = 48;
     OLED_Draw_Text(InputVoltageText);
     OLED_Draw_Text(InputCurrentText);
-    OLED_Draw_FillRect(0, 0, 128, 16, OLED_MIX_COVER);
     OLED_Draw_Text(InputStatusText);
-    OLED_Draw_FillRect(0, 48, 128, 64, OLED_MIX_COVER);
     OLED_Draw_Text(Temp2Text);
-
 }
 
 void OLEDUI_OutputRefresh(void) {
-    static char buf0[6];
-    static char buf1[6];
-    float_to_string(buf0, OutputVoltage, 2);
-    float_to_string(buf1, OutputCurrent, 2);
-    TEXT OutputVoltageText = {56 + monitor_x_var.currentValue, 16, buf0, OLED_MIX_COVER, &font_12x16, {0}, 0};
-    TEXT OutputCurrentText = {56 + monitor_x_var.currentValue, 32, buf1, OLED_MIX_COVER, &font_12x16, {0}, 0};
+    char buf0[9];
+    char buf1[9];
+    char buf2[17] = "Temp2:";
+    char buf3[9];
+    float_to_string(buf0, sizeof(buf0), OutputVoltage, 2);
+    float_to_string(buf1, sizeof(buf1), OutputCurrent, 2);
+    float_to_string(buf3, sizeof(buf2), Temp2, 2);
+    strcat(buf0, "V");
+    strcat(buf1, "A");
+    strcat(buf2, buf3);
+    strcat(buf2, "'C");
+    OutputVoltageText.str = buf0;
+    OutputCurrentText.str = buf1;
+    Temp2Text.str=buf2;
     TEXT_Preprocess(&OutputVoltageText);
     TEXT_Preprocess(&OutputCurrentText);
+    TEXT_Preprocess(&Temp2Text);
+    OutputVoltageText.x = 256 + monitor_x_var.currentValue - OutputVoltageText.fontwidth;
+    OutputVoltageText.y = 16;
+    OutputCurrentText.x = 256 + monitor_x_var.currentValue - OutputCurrentText.fontwidth;
+    OutputCurrentText.y = 32;
+    Temp2Text.x=128+monitor_x_var.currentValue;
+    Temp2Text.y=48;
     OLED_Draw_Text(OutputVoltageText);
     OLED_Draw_Text(OutputCurrentText);
+    OLED_Draw_Text(Temp2Text);
 }
 
 void OLEDUI_Refresh(void) {
@@ -424,21 +497,17 @@ void OLEDUI_Refresh(void) {
     EaseVar_Refresh();
 
     OLEDUI_InputRefresh();
-
-
-    //ELEMENT testRect = {
-    //    testText0.x, testText0.y, testText0.fontwidth, testText0.y + testText0.fontdesc->height, OLED_MIX_XOR, &sbuf
-    //};
-    //OLED_Draw_Element(testRect);
-    //printf("%d", testText.fontwidth);
-    //OLED_Draw_Element(testIcon);
+    OLEDUI_OutputRefresh();
+    OLED_Draw_FillRect(0, 0, 128, 16, OLED_MIX_XOR);
+    OLED_Draw_FillRect(0, 48, 128, 64, OLED_MIX_XOR);
 
     OLED_SendBuffer();
 }
 
 //左
 void Trigger_1(void) {
-    EaseVar_SetHardRestart(&monitor_y_var, 16, 100);
+    CurrentPage--;
+    EaseVar_SetHardRestart(&monitor_x_var, CurrentPage*128, 100);
 }
 
 //中
@@ -447,5 +516,6 @@ void Trigger_2(void) {
 
 //右
 void Trigger_3(void) {
-    EaseVar_SetHardRestart(&monitor_y_var, -16, 100);
+    CurrentPage++;
+    EaseVar_SetHardRestart(&monitor_x_var, CurrentPage*128, 100);
 }
