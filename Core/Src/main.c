@@ -102,6 +102,7 @@ int main(void)
   MX_I2C2_Init();
   MX_TIM1_Init();
   MX_SPI2_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   USART_Init();
   TimRefresh_Init();

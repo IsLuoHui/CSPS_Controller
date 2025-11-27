@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 typedef struct {
-    const uint8_t *table;
+    uint8_t *table;
     uint8_t width;
     uint8_t height;
 } FONT_DESC;

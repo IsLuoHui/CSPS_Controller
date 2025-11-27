@@ -33,6 +33,7 @@
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
+typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -60,9 +61,14 @@ const osThreadAttr_t testTask_attributes = {
 };
 /* Definitions for oledRefreshTask */
 osThreadId_t oledRefreshTaskHandle;
+uint32_t oledRefreshTaskBuffer[ 512 ];
+osStaticThreadDef_t oledRefreshTaskControlBlock;
 const osThreadAttr_t oledRefreshTask_attributes = {
   .name = "oledRefreshTask",
-  .stack_size = 128 * 4,
+  .cb_mem = &oledRefreshTaskControlBlock,
+  .cb_size = sizeof(oledRefreshTaskControlBlock),
+  .stack_mem = &oledRefreshTaskBuffer[0],
+  .stack_size = sizeof(oledRefreshTaskBuffer),
   .priority = (osPriority_t) osPriorityLow,
 };
 
@@ -129,6 +135,7 @@ void MX_FREERTOS_Init(void) {
 void StartTestTask(void *argument)
 {
   /* USER CODE BEGIN StartTestTask */
+  UNUSED(argument);
   /* Infinite loop */
   for(;;)
   {
@@ -148,11 +155,10 @@ void StartTestTask(void *argument)
 void StartOLEDRefreshTask(void *argument)
 {
   /* USER CODE BEGIN StartOLEDRefreshTask */
-
+  UNUSED(argument);
   OLED_Init();
   EaseVar_Init();
   OLEDUI_Init();
-
 
   /* Infinite loop */
   for(;;)
@@ -160,6 +166,8 @@ void StartOLEDRefreshTask(void *argument)
     if (doRefresh==1) {
       CSPS_Var_Refresh();
       doRefresh=0;
+      //UBaseType_t freeStack = uxTaskGetStackHighWaterMark(NULL);
+      //printf("stack last: %lu words\r\n", freeStack);
     }
     OLEDUI_Refresh();
     //OLED_Draw_Rect(anim1.currentValue,0,anim1.currentValue+ICON48W,ICON48H,OLED_MIX_COVER);
