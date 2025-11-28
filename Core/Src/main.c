@@ -28,6 +28,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
+
 #include "serial.h"
 #include "key.h"
 #include "easebridge.h"
@@ -170,8 +172,10 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-static uint16_t done=0;
-extern volatile uint8_t doRefresh;
+static uint16_t uCTick=0;
+static uint16_t sleepTick=0;
+extern volatile uint8_t uCRefreshFlag;
+extern volatile uint8_t sleepFlag;
 /* USER CODE END 4 */
 
 /**
@@ -189,10 +193,21 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   {
     Key_Scan_Refresh();
     EasingVar_Refresh();
-    done++;
-    if (done==200) {
-      done=0;
-      doRefresh=1;
+    //printf("%d\r\n",sleepTick);
+    uCTick++;
+    if (uCTick==200) {
+      uCTick=0;
+      uCRefreshFlag=1;
+    }
+    if (sleepFlag==0)sleepTick++;
+    if (sleepFlag==2){
+      sleepTick=0;
+      sleepFlag=0;
+    }
+    if (sleepTick>=2000)
+    {
+      sleepTick=0;
+      sleepFlag=1;
     }
   }
   /* USER CODE END Callback 0 */

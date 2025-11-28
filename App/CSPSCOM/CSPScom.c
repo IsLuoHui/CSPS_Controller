@@ -11,7 +11,7 @@ float OutputCurrent = 0;
 float Temp1 = 0;
 float Temp2 = 0;
 
-volatile uint8_t doRefresh = 0;
+volatile uint8_t uCRefreshFlag = 0;
 
 void CSPS_Set_Fan_Speed_Max(void) {
     uC_I2C_Write(0x3C, 0x4E20);

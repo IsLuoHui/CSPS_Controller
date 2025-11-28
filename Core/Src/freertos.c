@@ -50,7 +50,7 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-extern volatile uint8_t doRefresh;
+extern volatile uint8_t uCRefreshFlag;
 /* USER CODE END Variables */
 /* Definitions for testTask */
 osThreadId_t testTaskHandle;
@@ -163,9 +163,9 @@ void StartOLEDRefreshTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    if (doRefresh==1) {
+    if (uCRefreshFlag==1) {
       CSPS_Var_Refresh();
-      doRefresh=0;
+      uCRefreshFlag=0;
       //UBaseType_t freeStack = uxTaskGetStackHighWaterMark(NULL);
       //printf("stack last: %lu words\r\n", freeStack);
     }

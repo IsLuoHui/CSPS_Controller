@@ -104,18 +104,17 @@ void Ease_SetFunc(EaseType type,EaseVar *self){
 EaseType Ease_GetFunc(EaseVar *self) {
     if(self->easingFunction) {
         if (self->easingFunction == easeLinear_) return easeLinear;
-        else if (self->easingFunction == easeInQuad_) return easeInQuad;
-        else if (self->easingFunction == easeOutQuad_) return easeOutQuad;
-        else if (self->easingFunction == easeInOutQuad_) return easeInOutQuad;
-        else if (self->easingFunction == easeInCubic_) return easeInCubic;
-        else if (self->easingFunction == easeOutCubic_) return easeOutCubic;
-        else if (self->easingFunction == easeInOutCubic_) return easeInOutCubic;
-        else if (self->easingFunction == easeSmoothstep_) return easeSmoothstep;
-        else if (self->easingFunction == easeOutElastic_) return easeOutElastic;
-        else return easeNone; // 未知函数
-    } else {
-        return easeNone; // 未设置函数
+        if (self->easingFunction == easeInQuad_) return easeInQuad;
+        if (self->easingFunction == easeOutQuad_) return easeOutQuad;
+        if (self->easingFunction == easeInOutQuad_) return easeInOutQuad;
+        if (self->easingFunction == easeInCubic_) return easeInCubic;
+        if (self->easingFunction == easeOutCubic_) return easeOutCubic;
+        if (self->easingFunction == easeInOutCubic_) return easeInOutCubic;
+        if (self->easingFunction == easeSmoothstep_) return easeSmoothstep;
+        if (self->easingFunction == easeOutElastic_) return easeOutElastic;
+        return easeNone; // 未知函数
     }
+    return easeNone; // 未设置函数
 }
 
 void EaseVar_Update(EaseVar *self) {
