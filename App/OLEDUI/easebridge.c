@@ -8,7 +8,7 @@ extern KeyStatus key1s, key2s, key3s;
 
 EaseVar easevar[] = {
     {0, 0, 0, 0, 0,easeOutCubic_, 1},
-    {0, 0, 0, 0, 0,easeOutElastic_, 1},
+    {0, 0, 0, 0, 0,easeOutCubic_, 1},
 };
 
 void EasingVar_Refresh(void) {

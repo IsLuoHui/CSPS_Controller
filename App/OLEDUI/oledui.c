@@ -5,6 +5,7 @@
 #include "easebridge.h"
 #include <stdio.h>
 #include "easevar.h"
+#include "cmsis_os2.h"
 
 volatile uint8_t sleepFlag = 0;
 extern uint8_t FrameBuffer[OLED_BUFFER_SIZE];
@@ -456,11 +457,14 @@ void OLED_Draw_Text(TEXT text)
 void EaseVar_Init(void)
 {
     EaseVar_SetHard(&monitor_x_var, 0);
+    EaseVar_SetHard(&monitor_y_var, 16);
+
 }
 
 void EaseVar_Refresh(void)
 {
     EaseVar_Update(&monitor_x_var);
+    EaseVar_Update(&monitor_y_var);
 }
 
 void OLEDUI_Init(void)
@@ -512,13 +516,13 @@ void OLEDUI_InputRefresh(void)
     TEXT_Preprocess(&InputStatusText);
     TEXT_Preprocess(&Temp2Text);
     InputVoltageText.x = monitor_x_var.currentValue;
-    InputVoltageText.y = 16;
+    InputVoltageText.y = monitor_y_var.currentValue;
     InputCurrentText.x = monitor_x_var.currentValue;
-    InputCurrentText.y = 32;
+    InputCurrentText.y = 48-monitor_y_var.currentValue;
     InputStatusText.x = monitor_x_var.currentValue;
-    InputStatusText.y = 0;
+    InputStatusText.y = monitor_y_var.currentValue-16;
     Temp2Text.x = monitor_x_var.currentValue;
-    Temp2Text.y = 48;
+    Temp2Text.y = 64-monitor_y_var.currentValue;
     OLED_Draw_Text(InputVoltageText);
     OLED_Draw_Text(InputCurrentText);
     OLED_Draw_Text(InputStatusText);
@@ -545,43 +549,63 @@ void OLEDUI_OutputRefresh(void)
     TEXT_Preprocess(&OutputCurrentText);
     TEXT_Preprocess(&Temp2Text);
     OutputVoltageText.x = 256 + monitor_x_var.currentValue - OutputVoltageText.fontwidth;
-    OutputVoltageText.y = 16;
+    OutputVoltageText.y = monitor_y_var.currentValue;
     OutputCurrentText.x = 256 + monitor_x_var.currentValue - OutputCurrentText.fontwidth;
-    OutputCurrentText.y = 32;
+    OutputCurrentText.y = 48-monitor_y_var.currentValue;
     Temp2Text.x = 128 + monitor_x_var.currentValue;
-    Temp2Text.y = 48;
+    Temp2Text.y = 64-monitor_y_var.currentValue;
     OLED_Draw_Text(OutputVoltageText);
     OLED_Draw_Text(OutputCurrentText);
     OLED_Draw_Text(Temp2Text);
 }
 
 static uint8_t oledState = 0; // 0=关，1=开
+static uint8_t oledStatePrev = 0;
 void OLEDUI_Sleep(void)
 {
     if (sleepFlag == 0 && oledState == 0)
     {
-        OLED_Display_On();
+        if (!oledStatePrev)
+        {
+            //唤醒时
+            OLED_Display_On();
+            osDelay(200);//开启屏幕等待
+        }else
+        {
+            //等待息屏时
+            oledStatePrev=0;
+        }
+        EaseVar_SetHardRestart(&monitor_y_var, 16, 400);
         oledState = 1;
     }
     else if (sleepFlag == 1 && oledState == 1)
     {
-        OLED_Display_Off();
+        EaseVar_SetHardRestart(&monitor_y_var, -16, 400);
+        oledStatePrev=1;
         oledState = 0;
+    }
+    if (oledStatePrev&&monitor_y_var.status==EASEVAR_IDLE)
+    {
+        oledStatePrev=0;
+        OLED_Display_Off();
     }
 }
 
 
 void OLEDUI_Refresh(void)
 {
+    OLEDUI_Sleep();
+    if (sleepFlag&&monitor_y_var.status==EASEVAR_IDLE)return;
+
     memset(FrameBuffer, 0, OLED_BUFFER_SIZE);
     EaseVar_Refresh();
 
     if (monitor_x_var.currentValue > -128 && monitor_x_var.currentValue < 128) OLEDUI_InputRefresh();
     if (monitor_x_var.currentValue > -256 && monitor_x_var.currentValue < 0) OLEDUI_OutputRefresh();
-    OLED_Draw_FillRect(0, 0, 128, 16, OLED_MIX_XOR);
-    OLED_Draw_FillRect(0, 48, 128, 64, OLED_MIX_XOR);
+    OLED_Draw_FillRect(0, 0, 128, monitor_y_var.currentValue>=0?monitor_y_var.currentValue:0, OLED_MIX_XOR);
+    OLED_Draw_FillRect(0, 64-monitor_y_var.currentValue, 128, 64, OLED_MIX_XOR);
 
-    OLEDUI_Sleep();
+
     OLED_SendBuffer();
 }
 

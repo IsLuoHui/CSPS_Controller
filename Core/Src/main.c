@@ -204,7 +204,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       sleepTick=0;
       sleepFlag=0;
     }
-    if (sleepTick>=2000)
+    if (sleepTick>=1000)
     {
       sleepTick=0;
       sleepFlag=1;
