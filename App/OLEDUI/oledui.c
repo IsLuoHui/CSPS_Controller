@@ -90,6 +90,7 @@ extern float OutputVoltage;
 extern float OutputCurrent;
 extern float Temp1;
 extern float Temp2;
+extern uint16_t FanRPM;
 
 static int8_t CurrentPage = 0;
 
@@ -458,7 +459,6 @@ void EaseVar_Init(void)
 {
     EaseVar_SetHard(&monitor_x_var, 0);
     EaseVar_SetHard(&monitor_y_var, 16);
-
 }
 
 void EaseVar_Refresh(void)
@@ -489,6 +489,7 @@ TEXT Temp1Text = {0, 0, "", OLED_MIX_COVER, &font_8x16, {0}, 0};
 
 TEXT OutputVoltageText = {0, 0, "", OLED_MIX_COVER, &font_12x16, {0}, 0};
 TEXT OutputCurrentText = {0, 0, "", OLED_MIX_COVER, &font_12x16, {0}, 0};
+TEXT FanRPMText = {0, 0, "", OLED_MIX_COVER, &font_8x16, {0}, 0};
 TEXT Temp2Text = {0, 0, "", OLED_MIX_COVER, &font_8x16, {0}, 0};
 
 
@@ -510,23 +511,23 @@ void OLEDUI_InputRefresh(void)
     InputVoltageText.str = buf0;
     InputCurrentText.str = buf1;
     InputStatusText.str = buf2;
-    Temp2Text.str = buf3;
+    Temp1Text.str = buf3;
     TEXT_Preprocess(&InputVoltageText);
     TEXT_Preprocess(&InputCurrentText);
     TEXT_Preprocess(&InputStatusText);
-    TEXT_Preprocess(&Temp2Text);
+    TEXT_Preprocess(&Temp1Text);
     InputVoltageText.x = monitor_x_var.currentValue;
     InputVoltageText.y = monitor_y_var.currentValue;
     InputCurrentText.x = monitor_x_var.currentValue;
-    InputCurrentText.y = 48-monitor_y_var.currentValue;
+    InputCurrentText.y = 48 - monitor_y_var.currentValue;
     InputStatusText.x = monitor_x_var.currentValue;
-    InputStatusText.y = monitor_y_var.currentValue-16;
-    Temp2Text.x = monitor_x_var.currentValue;
-    Temp2Text.y = 64-monitor_y_var.currentValue;
+    InputStatusText.y = monitor_y_var.currentValue - 16;
+    Temp1Text.x = monitor_x_var.currentValue;
+    Temp1Text.y = 64 - monitor_y_var.currentValue;
     OLED_Draw_Text(InputVoltageText);
     OLED_Draw_Text(InputCurrentText);
     OLED_Draw_Text(InputStatusText);
-    OLED_Draw_Text(Temp2Text);
+    OLED_Draw_Text(Temp1Text);
 }
 
 void OLEDUI_OutputRefresh(void)
@@ -535,9 +536,11 @@ void OLEDUI_OutputRefresh(void)
     char buf1[9];
     char buf2[17] = "Temp2:";
     char buf3[9];
+    char buf4[18];
     float_to_string(buf0, sizeof(buf0), OutputVoltage, 2);
     float_to_string(buf1, sizeof(buf1), OutputCurrent, 2);
     float_to_string(buf3, sizeof(buf2), Temp2, 2);
+    sprintf(buf4,"FanRPM:%u",FanRPM);
     strcat(buf0, "V");
     strcat(buf1, "A");
     strcat(buf2, buf3);
@@ -545,22 +548,30 @@ void OLEDUI_OutputRefresh(void)
     OutputVoltageText.str = buf0;
     OutputCurrentText.str = buf1;
     Temp2Text.str = buf2;
+    FanRPMText.str = buf4;
     TEXT_Preprocess(&OutputVoltageText);
     TEXT_Preprocess(&OutputCurrentText);
     TEXT_Preprocess(&Temp2Text);
+    TEXT_Preprocess(&FanRPMText);
     OutputVoltageText.x = 256 + monitor_x_var.currentValue - OutputVoltageText.fontwidth;
     OutputVoltageText.y = monitor_y_var.currentValue;
     OutputCurrentText.x = 256 + monitor_x_var.currentValue - OutputCurrentText.fontwidth;
-    OutputCurrentText.y = 48-monitor_y_var.currentValue;
+    OutputCurrentText.y = 48 - monitor_y_var.currentValue;
     Temp2Text.x = 128 + monitor_x_var.currentValue;
-    Temp2Text.y = 64-monitor_y_var.currentValue;
+    Temp2Text.y = monitor_y_var.currentValue - 16;
+    FanRPMText.x = 128 + monitor_x_var.currentValue;
+    FanRPMText.y = 64 - monitor_y_var.currentValue;
+    //Temp2Text.x = 128 + monitor_x_var.currentValue;
+    //Temp2Text.y = 64 - monitor_y_var.currentValue;
     OLED_Draw_Text(OutputVoltageText);
     OLED_Draw_Text(OutputCurrentText);
     OLED_Draw_Text(Temp2Text);
+    OLED_Draw_Text(FanRPMText);
 }
 
 static uint8_t oledState = 0; // 0=关，1=开
 static uint8_t oledStatePrev = 0;
+
 void OLEDUI_Sleep(void)
 {
     if (sleepFlag == 0 && oledState == 0)
@@ -569,11 +580,12 @@ void OLEDUI_Sleep(void)
         {
             //唤醒时
             OLED_Display_On();
-            osDelay(200);//开启屏幕等待
-        }else
+            osDelay(200); //开启屏幕等待
+        }
+        else
         {
             //等待息屏时
-            oledStatePrev=0;
+            oledStatePrev = 0;
         }
         EaseVar_SetHardRestart(&monitor_y_var, 16, 400);
         oledState = 1;
@@ -581,12 +593,12 @@ void OLEDUI_Sleep(void)
     else if (sleepFlag == 1 && oledState == 1)
     {
         EaseVar_SetHardRestart(&monitor_y_var, -16, 400);
-        oledStatePrev=1;
+        oledStatePrev = 1;
         oledState = 0;
     }
-    if (oledStatePrev&&monitor_y_var.status==EASEVAR_IDLE)
+    if (oledStatePrev && monitor_y_var.status == EASEVAR_IDLE)
     {
-        oledStatePrev=0;
+        oledStatePrev = 0;
         OLED_Display_Off();
     }
 }
@@ -595,15 +607,15 @@ void OLEDUI_Sleep(void)
 void OLEDUI_Refresh(void)
 {
     OLEDUI_Sleep();
-    if (sleepFlag&&monitor_y_var.status==EASEVAR_IDLE)return;
+    if (sleepFlag && monitor_y_var.status == EASEVAR_IDLE)return;
 
     memset(FrameBuffer, 0, OLED_BUFFER_SIZE);
     EaseVar_Refresh();
 
     if (monitor_x_var.currentValue > -128 && monitor_x_var.currentValue < 128) OLEDUI_InputRefresh();
     if (monitor_x_var.currentValue > -256 && monitor_x_var.currentValue < 0) OLEDUI_OutputRefresh();
-    OLED_Draw_FillRect(0, 0, 128, monitor_y_var.currentValue>=0?monitor_y_var.currentValue:0, OLED_MIX_XOR);
-    OLED_Draw_FillRect(0, 64-monitor_y_var.currentValue, 128, 64, OLED_MIX_XOR);
+    OLED_Draw_FillRect(0, 0, 128, monitor_y_var.currentValue >= 0 ? monitor_y_var.currentValue : 0, OLED_MIX_XOR);
+    OLED_Draw_FillRect(0, 64 - monitor_y_var.currentValue, 128, 64, OLED_MIX_XOR);
 
 
     OLED_SendBuffer();
@@ -635,7 +647,6 @@ void Trigger_1(void)
 void Trigger_2(void)
 {
     if (RefreshSleepFlag())return;
-
 }
 
 //右

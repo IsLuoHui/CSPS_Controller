@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "uCI2C.h"
+#include "CSPScom.h"
 
 extern UART_HandleTypeDef huart2;
 uint8_t rxBuffer[RX_BUFFER_SIZE]={0};
