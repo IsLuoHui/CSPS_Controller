@@ -34,6 +34,7 @@
 #include "key.h"
 #include "easebridge.h"
 #include "timRefresh.h"
+#include "beep.h"
 #include "CSPScom.h"
 /* USER CODE END Includes */
 
@@ -105,8 +106,10 @@ int main(void)
   MX_TIM1_Init();
   MX_SPI2_Init();
   MX_USART1_UART_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   USART_Init();
+  Beep_Init();
   TimRefresh_Init();
   /* USER CODE END 2 */
 
@@ -192,6 +195,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim->Instance == TIM1)
   {
     Key_Scan_Refresh();
+    // if (!KEY2) {
+    //   BeepOn();
+    // }
+    // else {
+    //   BeepOff();
+    // }
     EasingVar_Refresh();
     //printf("%d\r\n",sleepTick);
     uCTick++;

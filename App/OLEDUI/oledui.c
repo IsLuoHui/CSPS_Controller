@@ -633,6 +633,7 @@ uint8_t RefreshSleepFlag(void)
         sleepFlag = 0; // 唤醒
         return 1;
     }
+    return 0;
 }
 
 //左

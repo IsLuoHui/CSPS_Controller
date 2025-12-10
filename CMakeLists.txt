@@ -53,6 +53,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         Basis/TimRefresh/timRefresh.c
         Basis/OLEDFont/oledFont.c
         Utils/Key/key.c
+        Utils/Beep/beep.c
         Utils/OLEDSPI/oledSPI.c
         App/CSPSCOM/CSPScom.c
 
@@ -69,6 +70,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         Basis/TimRefresh
         Basis/OLEDFont
         Utils/Key
+        Utils/Beep
         Utils/OLEDSPI
         App/CSPSCOM
         App/OLEDUI

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "uCI2C.h"
 #include "CSPScom.h"
+#include "main.h"
 
 extern UART_HandleTypeDef huart2;
 uint8_t rxBuffer[RX_BUFFER_SIZE]={0};
@@ -72,6 +73,12 @@ void USART_Process(const char *data,const uint16_t len) {
         } else {
             printf("Write failed!\r\n");
         }
+    }
+    else if (data[0]=='5')
+    {
+        //HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, GPIO_PIN_SET);
+        HAL_GPIO_TogglePin(CSPS_SWITCH_GPIO_Port,CSPS_SWITCH_Pin);
+        printf("CSPS Statue Changed!\r\n");
     }
     else
     {
