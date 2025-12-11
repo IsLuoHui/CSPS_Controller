@@ -30,6 +30,7 @@
 #include "oledui.h"
 #include <stdio.h>
 #include "CSPScom.h"
+#include "loopbuffer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,7 +41,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -51,6 +51,7 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 extern volatile uint8_t uCRefreshFlag;
+extern UART_HandleTypeDef huart1;
 /* USER CODE END Variables */
 /* Definitions for testTask */
 osThreadId_t testTaskHandle;
@@ -139,11 +140,44 @@ void StartTestTask(void *argument)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartTestTask */
   UNUSED(argument);
+  uint8_t command[50];
+  int commandLength = 0;
+  uint8_t PowOn[]=  {0xAA,0x05,0x01,0x00,0xB0};
+  uint8_t PowOff[]= {0xAA,0x05,0x01,0x01,0xB1};
   /* Infinite loop */
   for(;;)
   {
     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
     osDelay(100);
+
+    commandLength = Command_GetCommand(command);
+    if (commandLength != 0){
+      // HAL_UART_Transmit_DMA(&huart1, (uint8_t*)command, commandLength);
+      for (int i=0;i<5;i++)
+      {
+        if (PowOn[i] != command[i])break;
+        if (i==4)CSPS_Set_Power(1);
+      }
+      for (int i=0;i<5;i++)
+      {
+        if (PowOff[i] != command[i])break;
+        if (i==4)CSPS_Set_Power(0);
+      }
+       //for (int i = 2; i < commandLength - 1; i ++){
+      //   GPIO_PinState state = GPIO_PIN_SET;
+      //   if (command[i + 1] == 0x00){
+      //     state = GPIO_PIN_RESET;
+      //   }
+      //   if (command[i] == 0x01){
+      //     HAL_GPIO_WritePin(RED_GPIO_Port, RED_Pin, state);
+      //   }else if (command[i] == 0x02){
+      //     HAL_GPIO_WritePin(GREEN_GPIO_Port, GREEN_Pin, state);
+      //   }else if (command[i] == 0x03){
+      //     HAL_GPIO_WritePin(BLUE_GPIO_Port, BLUE_Pin, state);
+      //   }
+       //}
+    }
+
   }
   /* USER CODE END StartTestTask */
 }

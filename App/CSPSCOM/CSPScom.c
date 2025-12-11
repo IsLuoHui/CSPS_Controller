@@ -1,5 +1,5 @@
 ﻿#include "CSPScom.h"
-
+#include "main.h"
 #include <stdio.h>
 #include <string.h>
 #include "uCI2C.h"
@@ -17,6 +17,17 @@ float Temp2 = 0;
 uint16_t FanRPM = 0;
 
 volatile uint8_t uCRefreshFlag = 0;
+
+void CSPS_Set_Power(uint8_t status)
+{
+    if (status==0)
+    {
+        HAL_GPIO_WritePin(CSPS_SWITCH_GPIO_Port,CSPS_SWITCH_Pin,GPIO_PIN_RESET);
+        return;
+    }
+    HAL_GPIO_WritePin(CSPS_SWITCH_GPIO_Port,CSPS_SWITCH_Pin,GPIO_PIN_SET);
+}
+
 
 void CSPS_Set_Fan_Speed_Max(void)
 {

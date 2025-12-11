@@ -60,6 +60,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         App/OLEDUI/oledui.c
         App/OLEDUI/easevar.c
         App/OLEDUI/easebridge.c
+        Basis/LoopBuffer/loopbuffer.c
 )
 
 # Add include paths
@@ -75,6 +76,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 
         App/CSPSCOM
         App/OLEDUI
+        Basis/LoopBuffer
 )
 
 # Add project symbols (macros)
