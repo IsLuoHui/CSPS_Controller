@@ -55,8 +55,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         Utils/Key/key.c
         Utils/Beep/beep.c
         Utils/OLEDSPI/oledSPI.c
-        App/CSPSCOM/CSPScom.c
 
+        App/CSPSCOM/CSPScom.c
         App/OLEDUI/oledui.c
         App/OLEDUI/easevar.c
         App/OLEDUI/easebridge.c
@@ -72,6 +72,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         Utils/Key
         Utils/Beep
         Utils/OLEDSPI
+
         App/CSPSCOM
         App/OLEDUI
 )
