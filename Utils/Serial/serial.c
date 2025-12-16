@@ -93,6 +93,10 @@ void USART_Process(const char* data, const uint16_t len)
         HAL_GPIO_TogglePin(CSPS_SWITCH_GPIO_Port,CSPS_SWITCH_Pin);
         printf("CSPS Statue Changed!\r\n");
     }
+    else if (data[0] == '6')
+    {
+        HAL_GPIO_TogglePin(ESP_RST_GPIO_Port,ESP_RST_Pin);
+    }
     else
     {
         printf("%s+%d\r\n", data, len);

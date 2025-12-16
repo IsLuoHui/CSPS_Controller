@@ -152,16 +152,25 @@ void StartTestTask(void *argument)
 
     commandLength = Command_GetCommand(command);
     if (commandLength != 0){
+      printf("Get Command: ");
       // HAL_UART_Transmit_DMA(&huart1, (uint8_t*)command, commandLength);
       for (int i=0;i<5;i++)
       {
         if (PowOn[i] != command[i])break;
-        if (i==4)CSPS_Set_Power(1);
+        if (i==4)
+        {
+          CSPS_Set_Power(1);
+          printf("Power On\r\n");
+        }
       }
       for (int i=0;i<5;i++)
       {
         if (PowOff[i] != command[i])break;
-        if (i==4)CSPS_Set_Power(0);
+        if (i==4)
+        {
+          CSPS_Set_Power(0);
+          printf("Power Off\r\n");
+        }
       }
        //for (int i = 2; i < commandLength - 1; i ++){
       //   GPIO_PinState state = GPIO_PIN_SET;

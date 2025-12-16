@@ -96,7 +96,9 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  //TODO: ESP01s和STM32同时上电导致STM23 RX不接收数据
+  //__HAL_RCC_GPIOC_CLK_ENABLE();
+  //HAL_GPIO_WritePin(ESP_RST_GPIO_Port,ESP_RST_Pin,GPIO_PIN_SET);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */

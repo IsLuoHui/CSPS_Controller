@@ -114,23 +114,29 @@ uint8_t Command_GetCommand(uint8_t *command) {
         Command_AddReadIndex(1);
         continue;
         }
-        // 如果缓冲区长度小于指令长度 则不可能有完整的指令
+        // 读取长度字段并做合理性校验，避免被错误长度卡住
         uint8_t length = Command_Read(readIndex + 1);
+        if (length < COMMAND_MIN_LENGTH || length > BUFFER_SIZE) {
+            // 长度不合理，认为这是错误包头，跳过一个字节继续寻找
+            Command_AddReadIndex(1);
+            continue;
+        }
+        // 如果缓冲区长度小于指令长度 则不可能有完整的指令
         if (Command_GetLength() < length) {
-        return 0;
+            return 0;
         }
         // 如果校验和不正确 则跳过 重新开始寻找
         uint8_t sum = 0;
         for (uint8_t i = 0; i < length - 1; i++) {
-        sum += Command_Read(readIndex + i);
+            sum += Command_Read(readIndex + i);
         }
         if (sum != Command_Read(readIndex + length - 1)) {
-        Command_AddReadIndex(1);
-        continue;
+            Command_AddReadIndex(1);
+            continue;
         }
         // 如果找到完整指令 则将指令写入command 返回指令长度
         for (uint8_t i = 0; i < length; i++) {
-        command[i] = Command_Read(readIndex + i);
+            command[i] = Command_Read(readIndex + i);
         }
         Command_AddReadIndex(length);
         return length;
