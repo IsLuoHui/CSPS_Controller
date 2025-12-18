@@ -117,7 +117,7 @@ __ALIGN_BEGIN static uint8_t CUSTOM_HID_ReportDesc_FS[USBD_CUSTOM_HID_REPORT_DES
 };
 
 /* USER CODE BEGIN PRIVATE_VARIABLES */
-
+static uint8_t sendBuf[33];
 /* USER CODE END PRIVATE_VARIABLES */
 
 /**
@@ -201,26 +201,31 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 
   if (event_idx == 1)  // OUT Report ID = 1
   {
-    // ---- 打印主机发来的 8 字节 ----
     printf("OUT: ");
     for (int i = 0; i < 9; i++)
       printf("%02X ", buf[i]);
     printf("\r\n");
 
-    // ---- Echo 回发 ----
-    uint8_t sendBuf[33];
-    sendBuf[0] = 2;  // IN Report ID = 2
+    // PC OUT数据
+    uint8_t r_data[USBD_CUSTOMHID_OUTREPORT_BUF_SIZE-1];
+    memcpy(r_data, buf + 1, 8);
 
-    // 把 8 字节复制到前 8 字节，其余填 0
+    // Echo
+    sendBuf[0] = 2;  // IN Report ID = 2
     for (int i = 0; i < 32; i++)
-      sendBuf[i+1] = (i < 9) ? buf[i] : 0;
+    {
+      sendBuf[i+1] = (i < 8) ? r_data[i] : i;
+    }
     printf("IN: ");
-    for (int i = 0; i < 32; i++)
+    for (int i = 0; i < 33; i++)
       printf("%02X ", sendBuf[i]);
     printf("\r\n");
 
-    // 发送 33 字节（含 Report ID）
-    USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, sendBuf, 33);
+
+    const uint8_t ret = USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, sendBuf, 33);
+    if (ret != USBD_OK) {
+      printf("SendReport final ret=%d\r\n", ret);
+    }
   }
 
   return (USBD_OK);
