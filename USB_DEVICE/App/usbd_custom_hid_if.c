@@ -203,7 +203,7 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
   {
     // ---- 打印主机发来的 8 字节 ----
     printf("OUT: ");
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 9; i++)
       printf("%02X ", buf[i]);
     printf("\r\n");
 
@@ -213,7 +213,7 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t event_idx, uint8_t state)
 
     // 把 8 字节复制到前 8 字节，其余填 0
     for (int i = 0; i < 32; i++)
-      sendBuf[i+1] = (i < 8) ? buf[i] : 0;
+      sendBuf[i+1] = (i < 9) ? buf[i] : 0;
     printf("IN: ");
     for (int i = 0; i < 32; i++)
       printf("%02X ", sendBuf[i]);
